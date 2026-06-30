@@ -8,7 +8,8 @@
                   "miniprogram/pages/profile/profile",
                   "miniprogram/pages/auth/auth",
                   "miniprogram/pages/vehicle/vehicle",
-                  "miniprogram/pages/passenger-detail/passenger-detail",\n              "miniprogram/pages/oil-price/oil-price"
+                  "miniprogram/pages/passenger-detail/passenger-detail",
+                  "miniprogram/pages/oil-price/oil-price"
               ],
     "window":  {
                    "navigationBarTextStyle":  "black",
