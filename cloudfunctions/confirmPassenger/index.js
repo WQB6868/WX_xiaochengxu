@@ -22,7 +22,8 @@ exports.main = async function(event, context) {
     if (action === "confirm") {
       passengers[idx].status = "confirmed";
       passengers[idx].confirmTime = db.serverDate();
-      var newCount = (t.passengerCount || 0) + 1;
+      var addCount = passengers[idx].passengerCount || 1;
+      var newCount = (t.passengerCount || 0) + addCount;
       var updateData = {
         passengers: passengers,
         passengerCount: newCount

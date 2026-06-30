@@ -72,7 +72,47 @@
         markers="{{markers}}" enable-3D show-compass />
     </view>
 
+    <!-- 乘客端：申请同行表单 -->
+    <view class="apply-section card" wx:if="{{!isOwner && !hasApplied}}">
+      <view class="section-title">✋ 申请同行</view>
+      <view class="apply-form">
+        <view class="form-field">
+          <text class="form-label">联系人电话</text>
+          <input class="form-input" type="text" placeholder="请输入您的手机号" value="{{applyPhone}}" maxlength="11" bindinput="onPhoneInput" />
+        </view>
+        <view class="form-field">
+          <text class="form-label">申请人数</text>
+          <view class="stepper">
+            <view class="stepper-btn" bind:tap="decreaseCount">−</view>
+            <input class="stepper-input" type="number" value="{{applyCount}}" disabled />
+            <view class="stepper-btn" bind:tap="increaseCount">+</view>
+          </view>
+        </view>
+        <button class="btn-primary apply-submit-btn" bind:tap="submitApply">📩 提交申请</button>
+      </view>
+    </view>
+
+    <!-- 乘客端：申请状态 -->
+    <view class="apply-section card" wx:if="{{!isOwner && hasApplied}}">
+      <view class="section-title">✋ 我的申请</view>
+      <view class="apply-status {{applyStatusClass}}">
+        <text class="status-icon">{{applyStatusIcon}}</text>
+        <text class="status-text">{{applyStatusText}}</text>
+      </view>
+      <view class="apply-detail" wx:if="{{applyPhoneDisplay}}">
+        <text class="apply-detail-label">联系电话：</text>
+        <text class="apply-detail-value">{{applyPhoneDisplay}}</text>
+      </view>
+      <view class="apply-detail" wx:if="{{applyCount > 0}}">
+        <text class="apply-detail-label">申请人数：</text>
+        <text class="apply-detail-value">{{applyCount}} 人</text>
+      </view>
+      <button wx:if="{{applyStatus === 'pending'}}" class="btn-secondary" bind:tap="cancelApply">取消申请</button>
+      <button wx:if="{{applyStatus === 'rejected' || applyStatus === 'cancelled'}}" class="btn-primary" bind:tap="resetApply">重新申请</button>
+    </view>
+
     <view class="action-bar safe-area-bottom">
+      <!-- 车主端：乘客列表 -->
       <view wx:if="{{isOwner}}" class="applicants-section">
         <view class="applicants-header" bind:tap="toggleApplicants">
           <text>👥 同行乘客 ({{passengerCount}})</text>
@@ -84,7 +124,16 @@
             <view class="applicant-info">
               <text class="applicant-name">{{item.nickname || '乘客'}}</text>
               <text class="applicant-phone" wx:if="{{item.phone}}">☎ {{item.phone}}</text>
-              <text class="applicant-confirmed">✅ 已确认同行</text>
+              <text class="applicant-count" wx:if="{{item.passengerCount && item.passengerCount > 1}}">👥 {{item.passengerCount}}人</text>
+              <text class="applicant-status status-{{item.status}}">
+                {{item.status === 'pending' ? '⏳ 等待确认' : ''}}
+                {{item.status === 'confirmed' ? '✅ 已确认同行' : ''}}
+                {{item.status === 'rejected' ? '❌ 已拒绝' : ''}}
+              </text>
+            </view>
+            <view class="applicant-actions" wx:if="{{item.status === 'pending'}}">
+              <button class="btn-confirm" bind:tap="confirmPassenger" data-openid="{{item._openid}}">确认</button>
+              <button class="btn-reject" bind:tap="rejectPassenger" data-openid="{{item._openid}}">拒绝</button>
             </view>
           </view>
         </view>
@@ -93,20 +142,6 @@
 
       <button wx:if="{{isOwner && trip.status === 'recruiting'}}" class="btn-primary" bind:tap="startTrip">🚀 确认发车</button>
       <button wx:if="{{isOwner}}" class="btn-danger" bind:tap="deleteTrip">🗑 删除行程</button>
-
-      <block wx:if="{{!isOwner && !myConfirm}}">
-        <view class="contact-hint">
-          <text>联系车主确认同行后，点击下方按钮</text>
-        </view>
-        <button class="btn-primary" bind:tap="confirmRide">✅ 确认同行</button>
-      </block>
-      <block wx:elif="{{!isOwner && myConfirm}}">
-        <view class="apply-status confirmed">
-          <text class="status-icon">✅</text>
-          <text class="status-text">已确认同行，出发前请联系车主</text>
-        </view>
-        <button class="btn-secondary" bind:tap="cancelConfirm">取消确认</button>
-      </block>
     </view>
   </block>
 </view>

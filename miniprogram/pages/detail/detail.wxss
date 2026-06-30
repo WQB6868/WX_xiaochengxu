@@ -1,7 +1,7 @@
-
 .loading-container { display: flex; justify-content: center; padding-top: 200rpx; }
 .loading-spinner { width: 64rpx; height: 64rpx; border: 4rpx solid var(--border-color); border-top-color: var(--color-primary); border-radius: 50%; animation: spin 0.8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
+
 .driver-card { margin-bottom: 24rpx; }
 .driver-header { display: flex; align-items: center; }
 .driver-avatar { width: 88rpx; height: 88rpx; border-radius: 50%; margin-right: 24rpx; flex-shrink: 0; }
@@ -10,6 +10,7 @@
 .driver-stats { display: flex; align-items: center; gap: 12rpx; margin-top: 8rpx; flex-wrap: wrap; }
 .rating, .trip-count { font-size: 24rpx; color: var(--text-hint); }
 .verified-badge { font-size: 22rpx; color: var(--color-primary); background: var(--color-primary-light); padding: 2rpx 12rpx; border-radius: 20rpx; }
+
 .info-card { margin-bottom: 24rpx; }
 .info-row { display: flex; align-items: flex-start; margin-bottom: 24rpx; }
 .info-row:last-child { margin-bottom: 0; }
@@ -20,35 +21,45 @@
 .info-text { font-size: 30rpx; color: var(--text-primary); line-height: 1.4; }
 .price-text { color: var(--color-orange); font-weight: 700; font-size: 36rpx; }
 .info-divider { height: 2rpx; background: var(--border-light); margin: 20rpx 0; }
+
 .section-title { font-size: 28rpx; font-weight: 600; color: #333; margin-bottom: 16rpx; }
+
+.tags-group { display: flex; flex-wrap: wrap; }
 .tag { display: inline-block; padding: 6rpx 20rpx; background: #f5f5f5; border-radius: 24rpx; font-size: 24rpx; color: #666; margin-right: 8rpx; margin-bottom: 8rpx; }
+
 .remarks-text { font-size: 28rpx; color: var(--text-secondary); line-height: 1.6; }
+
 .map-card { padding: 0; overflow: hidden; margin-bottom: 24rpx; }
 .trip-map { width: 100%; height: 300rpx; }
+
 .action-bar { display: flex; flex-direction: column; gap: 20rpx; padding: 30rpx 0 60rpx; }
 
+/* Buttons */
 .btn-primary { width: 100%; height: 88rpx; line-height: 88rpx; border-radius: 44rpx; font-size: 30rpx; font-weight: 600; border: none; text-align: center; background: var(--color-primary); color: #fff; }
 .btn-primary::after { border: none; }
 .btn-primary:active { opacity: 0.85; }
+
 .btn-secondary { width: 100%; height: 80rpx; line-height: 80rpx; border-radius: 40rpx; font-size: 28rpx; border: 2rpx solid var(--border-color); text-align: center; background: #fff; color: #666; }
 .btn-secondary::after { border: none; }
+
 .btn-danger { width: 100%; height: 88rpx; line-height: 88rpx; border-radius: 44rpx; font-size: 30rpx; font-weight: 600; border: none; text-align: center; background: #fa5151; color: #fff; }
 .btn-danger::after { border: none; }
 .btn-danger:active { opacity: 0.85; }
 
 .apply-message { width: 100%; height: 72rpx; background: #f5f5f5; border-radius: 12rpx; padding: 0 20rpx; font-size: 26rpx; color: #333; margin-bottom: 16rpx; box-sizing: border-box; }
-.apply-status { display: flex; align-items: center; justify-content: center; padding: 24rpx 0; margin-bottom: 16rpx; background: #f0fdf4; border-radius: 12rpx; }
-.apply-status.confirmed { background: #e8f5e9; }
-.status-icon { font-size: 32rpx; margin-right: 8rpx; }
-.status-text { font-size: 28rpx; color: #333; font-weight: 500; }
 
-/* ???? - ??? */
+/* Contact card */
 .contact-card { margin-bottom: 24rpx; background: linear-gradient(135deg, #e8f5e9, #f1f8e9); border-radius: 16rpx; padding: 28rpx 24rpx; }
 .contact-card-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20rpx; }
 .contact-card-label { font-size: 28rpx; color: #333; font-weight: 500; }
 .contact-card-phone { font-size: 34rpx; font-weight: 700; color: #07c160; letter-spacing: 3rpx; }
+.contact-call-btn { width: 100%; height: 80rpx; line-height: 80rpx; border-radius: 40rpx; font-size: 30rpx; font-weight: 600; background: #07c160; color: #fff; border: none; text-align: center; margin-top: 16rpx; }
+.contact-call-btn::after { border: none; }
+.contact-call-btn:active { opacity: 0.85; }
 
-/* ???? */
+.contact-hint { text-align: center; padding: 16rpx 0; font-size: 24rpx; color: #999; }
+
+/* Applicants section */
 .applicants-section { margin-bottom: 16rpx; background: #fff; border-radius: 16rpx; overflow: hidden; }
 .applicants-header { display: flex; justify-content: space-between; align-items: center; padding: 24rpx; font-size: 28rpx; font-weight: 600; color: #333; background: #f9f9f9; }
 .toggle-icon { font-size: 24rpx; color: #999; }
@@ -58,33 +69,41 @@
 .applicant-avatar { width: 64rpx; height: 64rpx; border-radius: 50%; margin-right: 16rpx; }
 .applicant-info { flex: 1; }
 .applicant-name { font-size: 28rpx; color: #333; display: block; }
-.applicant-status { font-size: 22rpx; }
+.applicant-phone { font-size: 24rpx; color: #07c160; margin-top: 4rpx; display: block; }
+.applicant-count { font-size: 22rpx; color: #fa9a3e; margin-top: 2rpx; display: block; }
+.applicant-status { font-size: 24rpx; margin-top: 4rpx; display: block; }
 .status-pending { color: #fa9a3e; }
 .status-confirmed { color: #07c160; }
-.applicant-actions { display: flex; gap: 10rpx; }
+.status-rejected { color: #fa5151; }
+.status-cancelled { color: #999; }
+.applicant-actions { display: flex; gap: 10rpx; flex-shrink: 0; }
 .btn-confirm, .btn-reject { min-width: 80rpx; height: 52rpx; line-height: 52rpx; border-radius: 26rpx; font-size: 22rpx; padding: 0 16rpx; border: none; text-align: center; }
 .btn-confirm { background: #07c160; color: #fff; }
 .btn-confirm::after { border: none; }
 .btn-reject { background: #ffe8e8; color: #fa5151; }
 .btn-reject::after { border: none; }
-.applicant-confirmed { font-size: 24rpx; color: #07c160; margin-top: 4rpx; }
 .applicants-empty { padding: 32rpx; text-align: center; font-size: 26rpx; color: #999; }
 
-.contact-call-btn {
-  width: 100%;
-  height: 80rpx;
-  line-height: 80rpx;
-  border-radius: 40rpx;
-  font-size: 30rpx;
-  font-weight: 600;
-  background: #07c160;
-  color: #fff;
-  border: none;
-  text-align: center;
-  margin-top: 16rpx;
-}
-.contact-call-btn::after { border: none; }
-.contact-call-btn:active { opacity: 0.85; }
-.contact-hint { text-align: center; padding: 16rpx 0; font-size: 24rpx; color: #999; }
+/* Apply section - passenger form */
+.apply-section { margin-bottom: 24rpx; }
+.apply-form { display: flex; flex-direction: column; gap: 24rpx; }
+.form-field { display: flex; flex-direction: column; gap: 8rpx; }
+.form-label { font-size: 28rpx; color: #333; font-weight: 500; }
+.form-input { height: 72rpx; background: #f5f5f5; border-radius: 12rpx; padding: 0 20rpx; font-size: 28rpx; color: #333; box-sizing: border-box; }
+.stepper { display: flex; align-items: center; gap: 16rpx; }
+.stepper-btn { width: 60rpx; height: 60rpx; line-height: 60rpx; text-align: center; background: #f0f0f0; border-radius: 12rpx; font-size: 36rpx; color: #333; font-weight: 600; }
+.stepper-btn:active { background: #e0e0e0; }
+.stepper-input { width: 100rpx; height: 60rpx; text-align: center; background: #f5f5f5; border-radius: 12rpx; font-size: 32rpx; color: #333; font-weight: 600; }
+.apply-submit-btn { margin-top: 8rpx; }
 
-.applicant-phone { font-size: 24rpx; color: #07c160; margin-top: 4rpx; display: block; }
+/* Apply status display */
+.apply-detail { display: flex; align-items: center; padding: 8rpx 0; }
+.apply-detail-label { font-size: 26rpx; color: #666; }
+.apply-detail-value { font-size: 28rpx; color: #333; font-weight: 500; margin-left: 8rpx; }
+.apply-status { display: flex; align-items: center; justify-content: center; padding: 24rpx 0; margin-bottom: 16rpx; border-radius: 12rpx; }
+.apply-status.pending { background: #fff8e1; }
+.apply-status.confirmed { background: #e8f5e9; }
+.apply-status.rejected { background: #ffebee; }
+.apply-status.cancelled { background: #f5f5f5; }
+.status-icon { font-size: 36rpx; margin-right: 12rpx; }
+.status-text { font-size: 28rpx; color: #333; font-weight: 500; }

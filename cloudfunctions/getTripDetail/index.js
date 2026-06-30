@@ -17,6 +17,7 @@ exports.main = async function(event, context) {
         nickname: p.nickname,
         avatarUrl: p.avatarUrl,
         phone: p.phone || "",
+        passengerCount: p.passengerCount || 1,
         status: p.status,
         applyTime: p.applyTime
       };

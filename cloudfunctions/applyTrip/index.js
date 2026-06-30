@@ -7,12 +7,19 @@ exports.main = async function(event, context) {
   const { OPENID } = cloud.getWXContext();
   try {
     var tripId = event.tripId;
+    var phone = event.phone || "";
+    var passengerCount = parseInt(event.passengerCount) || 1;
+    
     var trip = await db.collection("trips").doc(tripId).get();
     if (!trip.data) return { code: 2001, message: "行程不存在" };
     var t = trip.data;
     if (t.status !== "recruiting") return { code: 2003, message: "该行程已停止招募" };
     if (t._openid === OPENID) return { code: 3002, message: "不能申请自己的行程" };
-    if (t.passengerCount >= t.seats) return { code: 2002, message: "座位已满" };
+    var confirmedCount = (t.passengers || []).filter(function(p) { return p.status === "confirmed"; }).length;
+    var pendingCount = (t.passengers || []).filter(function(p) { return p.status === "pending"; }).length;
+    var takenSeats = confirmedCount + pendingCount;
+    if (takenSeats >= t.seats) return { code: 2002, message: "座位已满" };
+    if (takenSeats + passengerCount > t.seats) return { code: 2002, message: "剩余座位不足" };
     
     var existing = (t.passengers || []).find(function(p) { return p._openid === OPENID; });
     if (existing && existing.status !== "rejected" && existing.status !== "cancelled") {
@@ -21,10 +28,20 @@ exports.main = async function(event, context) {
     
     var user = await db.collection("users").doc(OPENID).get();
     var userData = user.data || {};
+    
+    // Save phone to user profile if not exists
+    if (phone && !userData.phone) {
+      await db.collection("users").doc(OPENID).update({
+        data: { phone: phone }
+      });
+    }
+    
     var passengerEntry = {
       _openid: OPENID,
       nickname: userData.nickName || "",
       avatarUrl: userData.avatarUrl || "",
+      phone: phone || userData.phone || "",
+      passengerCount: passengerCount,
       status: "pending",
       applyTime: db.serverDate(),
       confirmTime: null,
@@ -66,7 +83,8 @@ exports.main = async function(event, context) {
           passengerInfo: {
             nickName: userData.nickName || "",
             avatarUrl: userData.avatarUrl || "",
-            phone: userData.phone || ""
+            phone: phone || userData.phone || "",
+            passengerCount: passengerCount
           },
           status: "pending",
           message: event.message || "",
