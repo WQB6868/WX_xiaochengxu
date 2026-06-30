@@ -19,6 +19,12 @@ exports.main = async function(event, context) {
       else toVariants.push(event.toCity.replace("市", ""));
       condition.toCity = _.in(toVariants);
     }
+    if (event.departDate) {
+      var d = new Date(event.departDate);
+      var next = new Date(d);
+      next.setDate(next.getDate() + 1);
+      condition.departDate = _.gte(d).and(_.lt(next));
+    }
     var totalResult = await db.collection("requests").where(condition).count();
     var result = await db.collection("requests").where(condition)
       .orderBy("createTime", "desc")

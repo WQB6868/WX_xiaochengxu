@@ -246,3 +246,7 @@
 .inline-card .route-arrow { font-size: 28rpx; color: #999; margin: 0 12rpx; }
 .inline-card .date-text { font-size: 28rpx; color: #666; }
 .inline-card .seats-text { font-size: 28rpx; color: #fa9a3e; font-weight: 600; }
+
+/* 乘客请求卡片 */
+.request-card { border-left: 8rpx solid #ff9800; }
+.card-badge { display: inline-block; padding: 4rpx 16rpx; background: #fff3e0; color: #e65100; border-radius: 20rpx; font-size: 22rpx; font-weight: 600; margin-bottom: 8rpx; }

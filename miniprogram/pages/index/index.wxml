@@ -100,9 +100,9 @@
 
   <!-- 行程列表 -->
   <view class="trip-list" wx:if="{{tripList.length > 0}}">
-    <view class="result-count" wx:if="{{searched}}">共 {{total}} 个车源</view>
+    <view class="result-count" wx:if="{{searched}}">共 {{total}} 个结果（车源+乘客）</view>
     <view wx:for="{{tripList}}" wx:key="_id">
-      <view class="inline-card" data-id="{{item._id}}" bind:tap="goDetail">
+      <view class="inline-card" wx:if="{{item._type == 'trip'}}" data-id="{{item._id}}" bind:tap="goDetail">
         <view class="card-row route-row">
           <text class="city-from" wx:if="{{item.from && item.from.city}}">{{item.from.city}}</text>
           <text class="city-from" wx:elif="{{item.from && item.from.province}}">{{item.from.province}}</text>
@@ -124,18 +124,34 @@
         </view>
       </view>
     </view>
+      <!-- 乘客请求卡片 -->
+      <view class="inline-card request-card" wx:elif="{{item._type == 'request'}}" data-id="{{item._id}}" bind:tap="goPassengerDetail">
+        <view class="card-badge">🙋 乘客</view>
+        <view class="card-row route-row">
+          <text class="city-from">{{item._fromCity}}</text>
+          <text class="route-arrow">  →  </text>
+          <text class="city-to">{{item._toCity}}</text>
+        </view>
+        <view class="card-row date-row">
+          <text class="date-text">{{item._dateDisplay}}</text>
+        </view>
+        <view class="card-row seats-row">
+          <text class="seats-text">👥 {{item._passengers}}人 求同行</text>
+        </view>
+      </view>
+    </view>
     <loading-more loading="{{loadingMore}}" hasMore="{{hasMore}}" />
   </view>
 
   <!-- 搜索结果为空 -->
   <empty-state wx:elif="{{searched && !initialLoading}}"
-    icon="🚗" title="暂无车源"
+    icon="🚗" title="暂无结果"
     desc="换个日期或路线试试" />
 
   <!-- 加载中 -->
   <view class="loading-init" wx:if="{{initialLoading}}">
     <view class="loading-spinner"></view>
-    <text class="loading-text">正在搜索车源...</text>
+    <text class="loading-text">正在搜索...</text>
   </view>
 
   <!-- FAB 按钮 -->

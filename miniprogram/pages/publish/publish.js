@@ -16,8 +16,8 @@ Page({
     vehicleInfo: "",
     tagOptions: constants.TRIP_TAGS,
     today: (function() { var d = new Date(); return d.getFullYear() + "-" + ((d.getMonth()+1)<10?"0":"") + (d.getMonth()+1) + "-" + (d.getDate()<10?"0":"") + d.getDate(); })(),
-    requestResults: false, requestSearched: false,
-    requestTrips: [], requestTotal: 0, passengerRequests: []
+    // request search fields removed
+    passengerRequests: []
   },
 
   onLoad: function(options) {
@@ -36,7 +36,7 @@ Page({
     wx.setNavigationBarTitle({ title: mode === "request" ? "求车" : "发布车源" });
     if (mode === "publish") { this.loadRequests(); }
     if (mode === "request") {
-      this.setData({ requestResults: false, requestSearched: false, requestTrips: [], requestTotal: 0, passengerRequests: [] });
+      this.setData({ passengerRequests: [] });
     }
   },
 
@@ -171,15 +171,6 @@ Page({
     if (!form.fromCity) { wx.showToast({ title: "请输入出发城市", icon: "none" }); return; }
     if (!form.toCity) { wx.showToast({ title: "请输入目的城市", icon: "none" }); return; }
 
-    this.setData({ requestResults: true, requestSearched: false, requestTrips: [] });
-
-    var params = {
-      fromCity: form.fromCity, toCity: form.toCity,
-      page: 1, pageSize: 20
-    };
-    if (form.departDate) params.departDate = form.departDate;
-    if (form.passengers > 1) params.needSeats = form.passengers;
-
     if (form.requestPhone && form.requestPhone.length === 11) {
       var openid = getApp().globalData.openid;
       if (openid) {
@@ -188,21 +179,16 @@ Page({
         }).catch(function() {});
       }
     }
-    api.callFunctionSilent("publishRequest", {
+    api.callFunction("publishRequest", {
       fromCity: form.fromCity, toCity: form.toCity,
       departDate: form.departDate || undefined,
       passengers: form.passengers, contactPhone: form.requestPhone,
       remarks: form.remarks
-    });
-    api.callFunction("searchTrip", params).then(function(data) {
-      that.setData({
-        requestTrips: data.list || [],
-        requestTotal: data.total || 0,
-        requestSearched: true
-      });
+    }).then(function() {
+      wx.showToast({ title: "求车信息已发布", icon: "success" });
+      setTimeout(function() { wx.navigateBack(); }, 1500);
     }).catch(function() {
-      that.setData({ requestSearched: true });
-      wx.showToast({ title: "搜索失败，请稍后再试", icon: "none" });
+      wx.showToast({ title: "发布失败，请稍后再试", icon: "none" });
     });
   },
 

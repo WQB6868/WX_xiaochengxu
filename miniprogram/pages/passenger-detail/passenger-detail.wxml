@@ -1,0 +1,73 @@
+<view class="page-container">
+  <view class="loading-container" wx:if="{{loading}}">
+    <view class="loading-spinner"></view>
+  </view>
+  
+  <block wx:else>
+    <!-- 乘客详情 -->
+    <view class="card request-info">
+      <view class="card-title">🙋 乘客信息</view>
+      <view class="info-row">
+        <text class="info-icon">📍</text>
+        <text class="info-text">{{request.fromCity}} → {{request.toCity}}</text>
+      </view>
+      <view class="info-row" wx:if="{{dateDisplay}}">
+        <text class="info-icon">📅</text>
+        <text class="info-text">{{dateDisplay}}</text>
+      </view>
+      <view class="info-row">
+        <text class="info-icon">👥</text>
+        <text class="info-text">{{request.passengers}}人 求同行</text>
+      </view>
+      <view class="info-row" wx:if="{{request.remarks}}">
+        <text class="info-icon">📝</text>
+        <text class="info-text">{{request.remarks}}</text>
+      </view>
+    </view>
+    
+    <!-- 联系方式 -->
+    <view class="card contact-section" wx:if="{{request.contactPhone}}">
+      <view class="card-title">📞 联系方式</view>
+      <view class="phone-row">
+        <text class="phone-label">手机号码</text>
+        <text class="phone-value">{{request.contactPhone}}</text>
+      </view>
+      <button class="call-btn" bind:tap="callPassenger">拨打电话</button>
+    </view>
+    
+    <!-- 邀请功能 -->
+    <view class="card" wx:if="{{hasTrips}}">
+      <view class="card-title">🚗 邀请到我的行程</view>
+      <text class="invite-hint">选择一个行程并邀请该乘客</text>
+      <radio-group class="trip-options" bindchange="onTripSelect">
+        <label class="trip-option" wx:for="{{myTrips}}" wx:key="_id">
+          <radio value="{{item._id}}" checked="{{item.selected}}" />
+          <view class="trip-option-info">
+            <text class="trip-route">{{item.from.city}} → {{item.to.city}}</text>
+            <text class="trip-date">{{item.departDate}} {{item.departTime}}</text>
+            <text class="trip-seats">剩余 {{item.remainingSeats}} 座</text>
+          </view>
+        </label>
+      </radio-group>
+      <button class="btn-primary invite-btn" bind:tap="invitePassenger" wx:if="{{selectedTripId}}">📩 邀请该乘客</button>
+    </view>
+    
+    <view class="card empty-trips" wx:elif="{{!hasTrips && !loading}}">
+      <view class="empty-content">
+        <text class="empty-icon">🚗</text>
+        <text class="empty-title">您还没有发布行程</text>
+        <text class="empty-desc">发布行程后可以邀请乘客</text>
+        <button class="btn-secondary" bind:tap="goPublish">🚗 发布行程</button>
+      </view>
+    </view>
+    
+    <!-- 操作结果 -->
+    <view class="card result-card" wx:if="{{invited}}">
+      <view class="result-content">
+        <text class="result-icon">✅</text>
+        <text class="result-text">已成功邀请该乘客</text>
+        <button class="btn-primary" bind:tap="goBack">返回</button>
+      </view>
+    </view>
+  </block>
+</view>

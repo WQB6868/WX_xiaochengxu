@@ -174,19 +174,8 @@
     </view>
 
     <view class="form-actions safe-area-bottom">
-      <button class="btn-primary" bind:tap="submitRequest">🔍 搜索匹配车源</button>
+      <button class="btn-primary" bind:tap="submitRequest">🔍 发布求车信息</button>
     </view>
 
-    <!-- 搜索结果 -->
-    <view class="request-results" wx:if="{{requestResults}}">
-      <view class="result-header" wx:if="{{requestTrips.length > 0}}">
-        <text class="result-title">找到 {{requestTotal}} 个匹配车源</text>
-      </view>
-      <view wx:for="{{requestTrips}}" wx:key="_id">
-        <trip-card trip="{{item}}" bind:tap="goDetail" data-id="{{item._id}}" />
-      </view>
-      <empty-state wx:if="{{requestResults && requestSearched && requestTrips.length === 0}}"  icon="🚗" title="暂未找到匹配车源"
-        desc="您的请求已记录，有车主发布后会通知您" />
-    </view>
-  </block>
+      </block>
 </scroll-view>

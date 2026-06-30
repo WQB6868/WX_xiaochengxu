@@ -187,6 +187,7 @@ Page({
     } catch(e) { return ""; }
   },
   goDetail: function(e) { wx.navigateTo({ url: "/miniprogram/pages/detail/detail?id=" + (e.currentTarget.dataset.id || e.detail) }); },
+  goPassengerDetail: function(e) { wx.navigateTo({ url: "/miniprogram/pages/passenger-detail/passenger-detail?id=" + e.currentTarget.dataset.id }); },
   goPublish: function() { wx.navigateTo({ url: "/miniprogram/pages/publish/publish" }); },
   goRequest: function() { wx.navigateTo({ url: "/miniprogram/pages/publish/publish?mode=request" }); }
 });
