@@ -1,0 +1,21 @@
+/* ===== CSS Reset ===== */
+view, scroll-view, swiper, movable-area, cover-view, text, image, button, input, textarea, navigator, icon, rich-text, map, canvas {
+  box-sizing: border-box;
+}
+button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin: 0;
+  background: none;
+  border: none;
+  border-radius: 0;
+  line-height: normal;
+}
+button::after {
+  border: none;
+}
+image {
+  display: block;
+}

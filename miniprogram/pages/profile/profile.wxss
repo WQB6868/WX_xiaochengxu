@@ -1,0 +1,22 @@
+.profile-page { min-height: 100vh; }
+.profile-header { background: linear-gradient(135deg, #07c160 0%, #06ad56 100%); padding: 60rpx 30rpx 40rpx; color: #fff; }
+.avatar-section { display: flex; align-items: center; margin-bottom: 30rpx; }
+.profile-avatar { width: 120rpx; height: 120rpx; border-radius: 50%; border: 4rpx solid rgba(255,255,255,0.4); margin-right: 24rpx; }
+.profile-meta { flex: 1; }
+.profile-name { font-size: 36rpx; font-weight: 600; display: block; margin-bottom: 8rpx; }
+.verified-tag { display: inline-block; font-size: 22rpx; padding: 4rpx 16rpx; background: rgba(255,255,255,0.2); border-radius: var(--radius-round); }
+.verified-tag.unverified { background: rgba(255,255,255,0.15); color: rgba(255,255,255,0.8); }
+.profile-stats { display: flex; justify-content: space-around; background: rgba(255,255,255,0.1); border-radius: var(--radius-lg); padding: 20rpx; }
+.stat-item { text-align: center; }
+.stat-num { font-size: 36rpx; font-weight: 700; display: block; }
+.stat-label { font-size: 22rpx; opacity: 0.8; margin-top: 4rpx; }
+.menu-group { margin: 20rpx; padding: 0; }
+.menu-item {  display: flex; align-items: center; padding: 28rpx 20rpx; border-bottom: 2rpx solid var(--border-light); }
+.menu-item:last-child { border-bottom: none; }
+.menu-icon { font-size: 36rpx; margin-right: 20rpx; }
+.menu-text { flex: 1; font-size: 28rpx; }
+.menu-arrow { font-size: 36rpx; color: var(--text-hint); }
+.menu-status { font-size: 24rpx; color: var(--color-orange); margin-right: 12rpx; }
+.menu-status.done { color: var(--color-primary); }
+
+/* 手机号绑定按钮 */

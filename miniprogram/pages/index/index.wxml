@@ -1,0 +1,153 @@
+<view class="page-container">
+  <!-- 快捷搜索：出发地 / 目的地 / 日期 -->
+  <view class="search-card">
+    <view class="search-form">
+      <view class="search-field-wrap">
+        <view class="search-field {{inputFocus === 'from' ? 'focused' : ''}}">
+          <text class="field-label">从</text>
+          <input class="field-input" placeholder="出发城市" placeholder-class="ph"
+                 value="{{searchParams.fromCity}}"
+                 bindinput="onCityInput" data-type="from"
+                 bindfocus="onCityFocus" data-type="from"
+                 bindblur="onCityBlur" />
+        </view>
+        <!-- 城市建议下拉 -->
+        <view class="city-suggest" wx:if="{{showSuggest === 'from' && filteredCities.length > 0}}">
+          <view class="suggest-item" wx:for="{{filteredCities}}" wx:key="*this"
+                data-city="{{item}}" bind:tap="selectSuggestCity" data-type="from">
+            <text class="suggest-city">{{item}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="search-swap" bind:tap="swapCities">⇄</view>
+
+      <view class="search-field-wrap">
+        <view class="search-field {{inputFocus === 'to' ? 'focused' : ''}}">
+          <text class="field-label">到</text>
+          <input class="field-input" placeholder="目的城市" placeholder-class="ph"
+                 value="{{searchParams.toCity}}"
+                 bindinput="onCityInput" data-type="to"
+                 bindfocus="onCityFocus" data-type="to"
+                 bindblur="onCityBlur" />
+        </view>
+        <!-- 城市建议下拉 -->
+        <view class="city-suggest" wx:if="{{showSuggest === 'to' && filteredCities.length > 0}}">
+          <view class="suggest-item" wx:for="{{filteredCities}}" wx:key="*this"
+                data-city="{{item}}" bind:tap="selectSuggestCity" data-type="to">
+            <text class="suggest-city">{{item}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="search-row">
+      <picker class="date-picker" mode="date" value="{{searchParams.date}}" bindchange="onDateChange">
+        <view class="date-selector">
+          <text class="date-icon">📅</text>
+          <text class="date-text {{searchParams.date ? '' : 'placeholder'}}">
+            {{searchParams.date || '选择日期'}}
+          </text>
+        </view>
+      </picker>
+      <button class="btn-primary search-btn" bind:tap="doSearch">搜索</button>
+    </view>
+  </view>
+
+  <!-- 热门路线 -->
+  <scroll-view class="route-scroll" scroll-x enhanced show-scrollbar="{{false}}">
+    <view class="route-tags">
+      <view class="route-tag {{activeRoute === index ? 'active' : ''}}"
+            wx:for="{{hotRoutes}}" wx:key="index"
+            data-idx="{{index}}" bind:tap="selectRoute">
+        <text class="route-from">{{item.from}}</text>
+        <text class="route-arrow">→</text>
+        <text class="route-to">{{item.to}}</text>
+        <view class="active-dot" wx:if="{{activeRoute === index}}"></view>
+      </view>
+    </view>
+  </scroll-view>
+
+  <!-- 日期快速选择 -->
+  <scroll-view class="date-scroll" scroll-x enhanced show-scrollbar="{{false}}">
+    <view class="date-tags">
+      <view class="date-tag {{activeDate === index ? 'active' : ''}}"
+            wx:for="{{dateList}}" wx:key="index"
+            data-idx="{{index}}" bind:tap="selectDate">
+        <text class="date-week">{{item.weekday}}</text>
+        <text class="date-day">{{item.date}}</text>
+        <view class="active-indicator" wx:if="{{activeDate === index}}"></view>
+      </view>
+    </view>
+  </scroll-view>
+
+  <!-- 初始提示：未搜索时显示 -->
+  <view class="initial-prompt" wx:if="{{!searched && !initialLoading}}">
+    <text class="prompt-icon">🔍</text>
+    <text class="prompt-title">搜索车源</text>
+    <text class="prompt-desc">直接输入城市名，或点热门路线快速查找</text>
+    <view class="prompt-steps">
+      <view class="prompt-step">
+        <text class="step-num">1</text>
+        <text class="step-text">输入出发城市和目的城市</text>
+      </view>
+      <view class="prompt-step">
+        <text class="step-num">2</text>
+        <text class="step-text">可选填日期，点击搜索</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 行程列表 -->
+  <view class="trip-list" wx:if="{{tripList.length > 0}}">
+    <view class="result-count" wx:if="{{searched}}">共 {{total}} 个车源</view>
+    <view wx:for="{{tripList}}" wx:key="_id">
+      <view class="inline-card" data-id="{{item._id}}" bind:tap="goDetail">
+        <view class="card-row route-row">
+          <text class="city-from" wx:if="{{item.from && item.from.city}}">{{item.from.city}}</text>
+          <text class="city-from" wx:elif="{{item.from && item.from.province}}">{{item.from.province}}</text>
+          <text class="city-from" wx:elif="{{item.from && item.from.address}}">{{item.from.address}}</text>
+          <text class="city-from" wx:elif="{{item.from}}">{{item.from}}</text>
+          <text class="city-from" wx:else>?</text>
+          <text class="route-arrow">  →  </text>
+          <text class="city-to" wx:if="{{item.to && item.to.city}}">{{item.to.city}}</text>
+          <text class="city-to" wx:elif="{{item.to && item.to.province}}">{{item.to.province}}</text>
+          <text class="city-to" wx:elif="{{item.to && item.to.address}}">{{item.to.address}}</text>
+          <text class="city-to" wx:elif="{{item.to}}">{{item.to}}</text>
+          <text class="city-to" wx:else>?</text>
+        </view>
+        <view class="card-row date-row">
+          <text class="date-text">{{item._dateDisplay || item.departTime || "时间待定"}}</text>
+        </view>
+        <view class="card-row seats-row">
+          <text class="seats-text">剩余 {{item.seats || 0}} 座</text>
+        </view>
+      </view>
+    </view>
+    <loading-more loading="{{loadingMore}}" hasMore="{{hasMore}}" />
+  </view>
+
+  <!-- 搜索结果为空 -->
+  <empty-state wx:elif="{{searched && !initialLoading}}"
+    icon="🚗" title="暂无车源"
+    desc="换个日期或路线试试" />
+
+  <!-- 加载中 -->
+  <view class="loading-init" wx:if="{{initialLoading}}">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">正在搜索车源...</text>
+  </view>
+
+  <!-- FAB 按钮 -->
+  <view class="fab-container">
+    <view class="fab fab-primary" bind:tap="goPublish">
+      <text class="fab-icon">🚗</text>
+      <text class="fab-text">发布车源</text>
+    </view>
+    <view class="fab fab-secondary" bind:tap="goRequest">
+      <text class="fab-icon">🙋</text>
+      <text class="fab-text">求车</text>
+    </view>
+  </view>
+</view>
+

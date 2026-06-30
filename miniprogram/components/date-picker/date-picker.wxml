@@ -1,0 +1,3 @@
+<picker mode="date" value="{{value}}" start="{{start}}" end="{{end}}" bindchange="onDateChange">
+  <view class="picker-display">{{value || placeholder}}</view>
+</picker>

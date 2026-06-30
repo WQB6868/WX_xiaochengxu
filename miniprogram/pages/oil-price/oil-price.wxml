@@ -1,0 +1,79 @@
+<view class="page-container">
+  <!-- 省份选择 -->
+  <view class="province-bar">
+    <scroll-view class="province-scroll" scroll-x enhanced show-scrollbar="{{false}}">
+      <view class="province-tags">
+        <view class="province-tag {{selectedProvince === item ? 'active' : ''}}"
+              wx:for="{{provinces}}" wx:key="*this"
+              data-idx="{{index}}" bind:tap="selectProvince">
+          {{item}}
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 加载状态 -->
+  <view class="loading-init" wx:if="{{loading && !loaded}}">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">正在查询油价...</text>
+  </view>
+
+  <!-- 油价卡片 -->
+  <block wx:elif="{{priceData}}">
+    <view class="region-title">
+      {{selectedProvince}} · 今日油价
+      <text class="source-tag" wx:if="{{source}}">{{source}}数据</text>
+    </view>
+
+    <view class="price-card card">
+      <view class="price-row">
+        <view class="price-item">
+          <text class="fuel-type">92# 汽油</text>
+          <text class="fuel-price">{{priceData.p92 || '--'}}</text>
+          <text class="fuel-unit">元/升</text>
+        </view>
+        <view class="price-divider"></view>
+        <view class="price-item">
+          <text class="fuel-type">95# 汽油</text>
+          <text class="fuel-price">{{priceData.p95 || '--'}}</text>
+          <text class="fuel-unit">元/升</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="price-card card">
+      <view class="price-row">
+        <view class="price-item">
+          <text class="fuel-type">98# 汽油</text>
+          <text class="fuel-price">{{priceData.p98 || '--'}}</text>
+          <text class="fuel-unit">元/升</text>
+        </view>
+        <view class="price-divider"></view>
+        <view class="price-item">
+          <text class="fuel-type">0# 柴油</text>
+          <text class="fuel-price">{{priceData.p0 || '--'}}</text>
+          <text class="fuel-unit">元/升</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="update-info" wx:if="{{priceData.time}}">
+      <text class="update-text">数据更新于 {{priceData.time}}</text>
+    </view>
+
+    <!-- 油价说明 -->
+    <view class="note-card card">
+      <text class="section-title">💡 说明</text>
+      <text class="note-text">油价数据仅供参考，实际价格以加油站为准。</text>
+      <text class="note-text" wx:if="{{source === '参考'}}">当前为参考数据，部署云函数后可获取实时油价。</text>
+      <text class="note-text" wx:if="{{source === '实时'}}">数据来源：国家发改委</text>
+    </view>
+  </block>
+
+  <!-- 刷新按钮 -->
+  <view class="refresh-bar safe-area-bottom" wx:if="{{loaded}}">
+    <button class="btn-secondary" bind:tap="loadPrice">
+      🔄 刷新油价
+    </button>
+  </view>
+</view>

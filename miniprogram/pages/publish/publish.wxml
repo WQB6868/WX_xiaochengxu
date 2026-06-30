@@ -1,0 +1,192 @@
+<scroll-view class="page-container" scroll-y enhanced>
+  <!-- 模式切换：发布车源 / 求车 -->
+  <view class="mode-tabs">
+    <view class="mode-tab {{mode === 'publish' ? 'active' : ''}}" bind:tap="switchMode" data-mode="publish">
+      🚗 发布车源
+    </view>
+    <view class="mode-tab {{mode === 'request' ? 'active' : ''}}" bind:tap="switchMode" data-mode="request">
+      🙋 求车
+    </view>
+  </view>
+
+  <!-- ====== 发布车源模式 ====== -->
+  <block wx:if="{{mode === 'publish'}}">
+    <view class="form-section">
+      <text class="form-label">🚩 出发地</text>
+      <view class="address-row">
+        <input class="form-input address-input" placeholder="输入出发地地址"
+          value="{{form.fromAddress}}" bindinput="onInput" data-field="fromAddress" />
+        <view class="map-btn" bind:tap="chooseFrom">
+          <text class="map-icon">📍</text>
+        </view>
+      </view>
+      <view class="location-detail" wx:if="{{form.fromAddress}}">
+        <text class="detail-label">详细地址</text>
+        <input class="form-input" placeholder="小区名/门牌号等"
+          value="{{form.fromDetail}}" bindinput="onInput" data-field="fromDetail" />
+      </view>
+    </view>
+
+    <view class="form-section">
+      <text class="form-label">🏁 目的地</text>
+      <view class="address-row">
+        <input class="form-input address-input" placeholder="输入目的地地址"
+          value="{{form.toAddress}}" bindinput="onInput" data-field="toAddress" />
+        <view class="map-btn" bind:tap="chooseTo">
+          <text class="map-icon">📍</text>
+        </view>
+      </view>
+      <view class="location-detail" wx:if="{{form.toAddress}}">
+        <text class="detail-label">详细地址</text>
+        <input class="form-input" placeholder="小区名/门牌号等"
+          value="{{form.toDetail}}" bindinput="onInput" data-field="toDetail" />
+      </view>
+    </view>
+
+    <view class="form-row">
+      <view class="form-section flex-1">
+        <text class="form-label">📅 出发日期</text>
+        <picker mode="date" value="{{form.departDate}}" start="{{today}}" bindchange="onDateChange">
+          <view class="picker-display {{form.departDate ? '' : 'placeholder'}}">{{form.departDate || '选择日期'}}</view>
+        </picker>
+      </view>
+      <view class="form-section flex-1" style="margin-left:20rpx;">
+        <text class="form-label">🕐 出发时间</text>
+        <picker mode="time" value="{{form.departTime}}" bindchange="onTimeChange">
+          <view class="picker-display {{form.departTime ? '' : 'placeholder'}}">{{form.departTime || '选择时间'}}</view>
+        </picker>
+      </view>
+    </view>
+
+    <view class="form-row">
+      <view class="form-section flex-1">
+        <text class="form-label">👥 空位数</text>
+        <view class="stepper">
+          <view class="stepper-btn" bind:tap="changeSeats" data-delta="-1">−</view>
+          <text class="stepper-value">{{form.seats}}</text>
+          <view class="stepper-btn" bind:tap="changeSeats" data-delta="1">+</view>
+        </view>
+      </view>
+      <view class="form-section flex-1" style="margin-left:20rpx;">
+        <text class="form-label">💰 费用（元/人）</text>
+        <input class="form-input" type="digit" placeholder="0 表示免费"
+          value="{{form.price}}" bindinput="onInput" data-field="price" />
+      </view>
+    </view>
+
+    <view class="form-section">
+      <text class="form-label">🚗 车辆信息</text>
+      <view class="vehicle-select" bind:tap="selectVehicle">
+        <text class="vehicle-text {{vehicleInfo ? '' : 'placeholder'}}">
+          {{vehicleInfo || '选择或添加车辆'}}
+        </text>
+        <text class="arrow">›</text>
+      </view>
+    </view>
+
+    <view class="form-section">
+      <text class="form-label">📞 车主手机号</text>
+      <input class="form-input" type="number" placeholder="填写手机号，方便乘客联系您" maxlength="11"
+        value="{{form.contactPhone}}" bindinput="onInput" data-field="contactPhone" />
+    </view>
+
+    <view class="form-section">
+      <text class="form-label">🏷 标签</text>
+      <view class="tags-group">
+        <view class="tag-select {{form.tags.indexOf(item) > -1 ? 'active' : ''}}"
+              wx:for="{{tagOptions}}" wx:key="*this" data-tag="{{item}}" bind:tap="toggleTag">{{item}}</view>
+      </view>
+    </view>
+
+    <view class="form-section">
+      <text class="form-label">📝 备注（可选）</text>
+      <textarea class="form-textarea" placeholder="行李限制、可带宠物等"
+        value="{{form.remarks}}" bindinput="onInput" data-field="remarks" />
+    </view>
+
+    <view class="form-actions safe-area-bottom">
+      <button class="btn-primary" bind:tap="submitPublish">🚗 确认发布车源</button>
+    </view>
+
+    <view class="section-divider"></view>
+    <view class="section-title">🔍 发现乘客</view>
+    <view class="passenger-list" wx:if="{{passengerRequests.length > 0}}">
+      <view wx:for="{{passengerRequests}}" wx:key="_id" class="request-item" bind:tap="callPassenger" data-phone="{{item.contactPhone}}">
+        <view class="request-route">{{item.fromCity}} → {{item.toCity}}</view>
+        <view class="request-meta">
+          <text wx:if="{{item.departDate}}">📅 {{formatDateShort(item.departDate)}}</text>
+          <text>👥 {{item.passengers}}人</text>
+          <text wx:if="{{item.contactPhone}}">☎ {{item.contactPhone}}</text>
+        </view>
+        <view class="request-remarks" wx:if="{{item.remarks}}">{{item.remarks}}</view>
+      </view>
+    </view>
+    <empty-state wx:if="{{passengerRequests.length === 0}}" icon="🚗" title="暂无乘客求车" desc="求车信息将显示在这里" />
+  </block>
+
+  <!-- ====== 求车模式 ====== -->
+  <block wx:elif="{{mode === 'request'}}">
+    <view class="request-intro">
+      <text class="request-icon">🙋</text>
+      <text class="request-title">发布搭车请求</text>
+      <text class="request-desc">填写你的出行需求，车主看到后会联系你</text>
+    </view>
+
+    <view class="form-section">
+      <text class="form-label">🚩 我从</text>
+      <input class="form-input" placeholder="输入出发城市" value="{{form.fromCity}}"
+        bindinput="onInput" data-field="fromCity" />
+    </view>
+
+    <view class="form-section">
+      <text class="form-label">🏁 我要去</text>
+      <input class="form-input" placeholder="输入目的城市" value="{{form.toCity}}"
+        bindinput="onInput" data-field="toCity" />
+    </view>
+
+    <view class="form-row">
+      <view class="form-section flex-1">
+        <text class="form-label">📅 出行日期</text>
+        <picker mode="date" value="{{form.departDate}}" start="{{today}}" bindchange="onDateChange">
+          <view class="picker-display {{form.departDate ? '' : 'placeholder'}}">{{form.departDate || '选择日期'}}</view>
+        </picker>
+      </view>
+      <view class="form-section flex-1" style="margin-left:20rpx;">
+        <text class="form-label">🙋 同行人数</text>
+        <view class="stepper">
+          <view class="stepper-btn" bind:tap="changePassengers" data-delta="-1">−</view>
+          <text class="stepper-value">{{form.passengers}}</text>
+          <view class="stepper-btn" bind:tap="changePassengers" data-delta="1">+</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="form-section">
+      <text class="form-label">📞 联系方式</text>
+      <input class="form-input" type="number" placeholder="填写手机号，方便车主联系您" maxlength="11"
+        value="{{form.requestPhone}}" bindinput="onInput" data-field="requestPhone" />
+    </view>
+
+    <view class="form-section">
+      <text class="form-label">📝 给车主的话（可选）</text>
+      <textarea class="form-textarea" placeholder="如：我是学生、行李不多、可接受拼车等"
+        value="{{form.remarks}}" bindinput="onInput" data-field="remarks" />
+    </view>
+
+    <view class="form-actions safe-area-bottom">
+      <button class="btn-primary" bind:tap="submitRequest">🔍 搜索匹配车源</button>
+    </view>
+
+    <!-- 搜索结果 -->
+    <view class="request-results" wx:if="{{requestResults}}">
+      <view class="result-header" wx:if="{{requestTrips.length > 0}}">
+        <text class="result-title">找到 {{requestTotal}} 个匹配车源</text>
+      </view>
+      <view wx:for="{{requestTrips}}" wx:key="_id">
+        <trip-card trip="{{item}}" bind:tap="goDetail" data-id="{{item._id}}" />
+      </view>
+      <empty-state wx:if="{{requestResults && requestSearched && requestTrips.length === 0}}"  icon="🚗" title="暂未找到匹配车源"
+        desc="您的请求已记录，有车主发布后会通知您" />
+    </view>
+  </block>
+</scroll-view>

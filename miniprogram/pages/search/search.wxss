@@ -1,0 +1,15 @@
+.search-header { background: #fff; border-radius: var(--radius-lg); padding: 24rpx; margin-bottom: 20rpx; box-shadow: var(--shadow-card); }
+.search-form { display: flex; align-items: center; gap: 16rpx; margin-bottom: 16rpx; }
+.search-field { flex: 1; display: flex; align-items: center; padding: 16rpx; background: var(--bg-input); border-radius: var(--radius-md); }
+.field-label { font-size: 28rpx; font-weight: 600; color: var(--color-primary); margin-right: 12rpx; }
+.field-value { font-size: 28rpx; color: var(--text-primary); }
+.field-value.placeholder { color: var(--text-placeholder); }
+.search-swap { font-size: 36rpx; color: var(--color-primary); padding: 10rpx; flex-shrink: 0; }
+.date-selector { background: var(--bg-input); border-radius: var(--radius-md); padding: 16rpx 20rpx; margin-bottom: 16rpx; }
+.date-text { font-size: 26rpx; }
+.date-text.placeholder { color: var(--text-placeholder); }
+.search-btn { margin-top: 0; height: 72rpx; line-height: 72rpx; }
+.filter-bar { display: flex; margin-bottom: 20rpx; gap: 16rpx; }
+.filter-item { padding: 12rpx 28rpx; border-radius: var(--radius-round); font-size: 24rpx; background: #fff; box-shadow: var(--shadow-card); color: var(--text-secondary); }
+.filter-item.active { background: var(--color-primary); color: #fff; }
+.trip-list { padding-bottom: 30rpx; }

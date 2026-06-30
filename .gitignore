@@ -1,0 +1,8 @@
+node_modules/
+miniprogram_npm/
+cloudfunctions/*/node_modules/
+*.log
+project.config.json
+project.private.config.json
+_section.txt
+Snipaste_*.png

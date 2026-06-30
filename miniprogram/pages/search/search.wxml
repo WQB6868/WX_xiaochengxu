@@ -1,0 +1,44 @@
+<view class="page-container">
+  <view class="search-header">
+    <view class="search-form">
+      <view class="search-field" bind:tap="chooseCity" data-type="from">
+        <text class="field-label">从</text>
+        <text class="field-value {{searchParams.fromCity ? '' : 'placeholder'}}">
+          {{searchParams.fromCity || '出发城市'}}
+        </text>
+      </view>
+      <view class="search-swap" bind:tap="swapCities">⇄</view>
+      <view class="search-field" bind:tap="chooseCity" data-type="to">
+        <text class="field-label">到</text>
+        <text class="field-value {{searchParams.toCity ? '' : 'placeholder'}}">
+          {{searchParams.toCity || '目的城市'}}
+        </text>
+      </view>
+    </view>
+    <picker mode="date" value="{{searchParams.date}}" bindchange="onDateChange">
+      <view class="date-selector">
+        <text class="date-text {{searchParams.date ? '' : 'placeholder'}}">
+          {{searchParams.date || '选择日期'}}
+        </text>
+      </view>
+    </picker>
+    <button class="btn-primary search-btn" bind:tap="doSearch">搜索车源</button>
+  </view>
+
+  <view class="filter-bar">
+    <view class="filter-item {{sortBy === 'time' ? 'active' : ''}}" bind:tap="setSort" data-sort="time">
+      ⌛ 时间
+    </view>
+    <view class="filter-item {{sortBy === 'price' ? 'active' : ''}}" bind:tap="setSort" data-sort="price">
+      💰 价格
+    </view>
+  </view>
+
+  <view class="trip-list" wx:if="{{tripList.length > 0}}">
+    <view wx:for="{{tripList}}" wx:key="_id">
+      <trip-card trip="{{item}}" bind:tap="goDetail" data-id="{{item._id}}" />
+    </view>
+  </view>
+
+  <empty-state wx:elif="{{searched}}" icon="🔍" title="未找到车源" desc="试试其他城市或日期" />
+</view>

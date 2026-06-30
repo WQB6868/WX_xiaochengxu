@@ -1,0 +1,48 @@
+{
+    "pages":  [
+                  "miniprogram/pages/index/index",
+                  "miniprogram/pages/publish/publish",
+                  "miniprogram/pages/search/search",
+                  "miniprogram/pages/detail/detail",
+                  "miniprogram/pages/trips/trips",
+                  "miniprogram/pages/profile/profile",
+                  "miniprogram/pages/auth/auth",
+                  "miniprogram/pages/vehicle/vehicle",
+                  "miniprogram/pages/oil-price/oil-price"
+              ],
+    "window":  {
+                   "navigationBarTextStyle":  "black",
+                   "navigationBarTitleText":  "老乡同行",
+                   "navigationBarBackgroundColor":  "#ffffff",
+                   "backgroundColor":  "#f5f5f5"
+               },
+    "tabBar":  {
+                   "color":  "#999999",
+                   "selectedColor":  "#07c160",
+                   "backgroundColor":  "#ffffff",
+                   "borderStyle":  "black",
+                   "list":  [
+                                {
+                                    "pagePath":  "miniprogram/pages/index/index",
+                                    "text":  "发现车源",
+                                    "iconPath":  "assets/icons/search.png",
+                                    "selectedIconPath":  "assets/icons/search_active.png"
+                                },
+                                {
+                                    "pagePath":  "miniprogram/pages/trips/trips",
+                                    "text":  "我的行程",
+                                    "iconPath":  "assets/icons/trip.png",
+                                    "selectedIconPath":  "assets/icons/trip_active.png"
+                                },
+                                {
+                                    "pagePath":  "miniprogram/pages/profile/profile",
+                                    "text":  "我的",
+                                    "iconPath":  "assets/icons/profile.png",
+                                    "selectedIconPath":  "assets/icons/profile_active.png"
+                                }
+                            ]
+               },
+    "sitemapLocation":  "sitemap.json",
+    "style":  "v2",
+    "lazyCodeLoading":  "requiredComponents"
+}

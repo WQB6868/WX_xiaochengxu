@@ -1,0 +1,21 @@
+<view class="trip-card" data-id="{{trip._id}}" bind:tap="onTap">
+  <view class="card-row route-row">
+    <text class="city-from" wx:if="{{trip.from && trip.from.city}}">{{trip.from.city}}</text>
+    <text class="city-from" wx:elif="{{trip.from && trip.from.province}}">{{trip.from.province}}</text>
+    <text class="city-from" wx:elif="{{trip.from && trip.from.address}}">{{trip.from.address}}</text>
+    <text class="city-from" wx:elif="{{trip.from}}">{{trip.from}}</text>
+    <text class="city-from" wx:else>?</text>
+    <text class="route-arrow">  →  </text>
+    <text class="city-to" wx:if="{{trip.to && trip.to.city}}">{{trip.to.city}}</text>
+    <text class="city-to" wx:elif="{{trip.to && trip.to.province}}">{{trip.to.province}}</text>
+    <text class="city-to" wx:elif="{{trip.to && trip.to.address}}">{{trip.to.address}}</text>
+    <text class="city-to" wx:elif="{{trip.to}}">{{trip.to}}</text>
+    <text class="city-to" wx:else>?</text>
+  </view>
+  <view class="card-row date-row">
+    <text class="date-text">{{trip.departDate ? formatDate(trip.departDate) + " " : ""}}{{trip.departTime || "时间待定"}}</text>
+  </view>
+  <view class="card-row seats-row">
+    <text class="seats-text">剩余 {{trip.seats || 0}} 座</text>
+  </view>
+</view>

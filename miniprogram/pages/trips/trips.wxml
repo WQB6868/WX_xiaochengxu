@@ -1,0 +1,39 @@
+<view class="page-container">
+  <view class="tabs">
+    <view class="tab {{activeTab === 'driver' ? 'active' : ''}}" data-tab="driver" bind:tap="switchTab">
+      🚗 我发布的
+    </view>
+    <view class="tab {{activeTab === 'passenger' ? 'active' : ''}}" data-tab="passenger" bind:tap="switchTab">
+      🙋 我申请的
+    </view>
+  </view>
+
+  <view class="status-filters">
+    <view class="status-filter {{activeStatus === '' ? 'active' : ''}}" data-status="" bind:tap="filterStatus">全部</view>
+    <view class="status-filter {{activeStatus === 'recruiting' ? 'active' : ''}}" data-status="recruiting" bind:tap="filterStatus">招募中</view>
+    <view class="status-filter {{activeStatus === 'departed' ? 'active' : ''}}" data-status="departed" bind:tap="filterStatus">已出发</view>
+    <view class="status-filter {{activeStatus === 'completed' ? 'active' : ''}}" data-status="completed" bind:tap="filterStatus">已完成</view>
+  </view>
+
+  <view class="trip-list" wx:if="{{tripList.length > 0}}">
+    <view wx:for="{{tripList}}" wx:key="_id" class="trip-item card" bind:tap="goDetail" data-id="{{item._id}}">
+      <!-- 第一行：出发地 → 目的地 + 状态 -->
+      <view class="trip-header">
+        <text class="trip-route">{{item.from.city}} → {{item.to.city}}</text>
+        <text class="trip-status status-{{item.status}}">{{statusText(item.status)}}</text>
+      </view>
+      <!-- 第二行：日期 + 时间 -->
+      <view class="trip-date-time">
+        <text>📅 {{item._dateDisplay}}</text>
+      </view>
+      <!-- 第三行：剩余座位数 -->
+      <view class="trip-seats">
+        <text>🪑 剩余 {{item.remainingSeats}} 座</text>
+        <text class="trip-price">{{formatPrice(item.price)}}</text>
+      </view>
+    </view>
+    <loading-more loading="{{loadingMore}}" hasMore="{{hasMore}}" />
+  </view>
+
+  <empty-state wx:elif="{{!initialLoading}}" icon="📋" title="暂无行程" desc="去发布或寻找一个行程吧" />
+</view>

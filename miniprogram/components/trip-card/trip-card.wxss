@@ -1,0 +1,6 @@
+.card-row { display: flex; align-items: center; padding: 6rpx 0; }
+.route-row { margin-bottom: 4rpx; }
+.city-from, .city-to { font-size: 34rpx; font-weight: 700; color: #1a1a1a; }
+.route-arrow { font-size: 28rpx; color: #999; margin: 0 12rpx; }
+.date-text { font-size: 26rpx; color: #666; }
+.seats-text { font-size: 28rpx; color: #fa9a3e; font-weight: 600; }

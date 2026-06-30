@@ -1,0 +1,8 @@
+.picker-display {
+  background: #f7f7f7;
+  border-radius: 12rpx;
+  padding: 20rpx 24rpx;
+  border: 2rpx solid #e5e5e5;
+  font-size: 28rpx;
+  color: #333;
+}

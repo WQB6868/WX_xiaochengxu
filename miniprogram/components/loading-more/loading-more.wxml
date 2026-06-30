@@ -1,0 +1,7 @@
+<view class="loading-more" wx:if="{{loading}}">
+  <view class="loading-spinner"></view>
+  <text class="loading-text">加载中...</text>
+</view>
+<view class="no-more" wx:elif="{{!hasMore}}">
+  <text class="no-more-text">没有更多了</text>
+</view>

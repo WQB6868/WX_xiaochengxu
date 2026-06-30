@@ -1,0 +1,66 @@
+<view class="page-container">
+  <!-- Vehicle List -->
+  <view class="vehicle-list" wx:if="{{vehicles.length > 0}}">
+    <block wx:for="{{vehicles}}" wx:key="_id">
+      <!-- Selection Mode -->
+      <view class="vehicle-item card" wx:if="{{selectMode}}"
+            data-item="{{item}}" bind:tap="selectVehicle">
+        <view class="vehicle-main">
+          <text class="vehicle-icon">🚗</text>
+          <view class="vehicle-info">
+            <text class="vehicle-name">{{item.brand}} {{item.model}}</text>
+            <text class="vehicle-plate">{{item.color}} · {{item.plateNumber}}</text>
+          </view>
+          <view class="vehicle-badge" wx:if="{{item.isDefault}}">默认</view>
+        </view>
+      </view>
+      <!-- Normal Mode -->
+      <view class="vehicle-item card" wx:else>
+        <view class="vehicle-main">
+          <text class="vehicle-icon">🚗</text>
+          <view class="vehicle-info">
+            <text class="vehicle-name">{{item.brand}} {{item.model}}</text>
+            <text class="vehicle-plate">{{item.color}} · {{item.plateNumber}}</text>
+          </view>
+          <view class="vehicle-badge" wx:if="{{item.isDefault}}">默认</view>
+        </view>
+        <view class="vehicle-actions">
+          <text class="action-btn" bind:tap="setDefault" data-id="{{item._id}}">
+            {{item.isDefault ? '当前默认' : '设为默认'}}
+          </text>
+          <text class="action-btn delete" bind:tap="deleteVehicle" data-id="{{item._id}}">删除</text>
+        </view>
+      </view>
+    </block>
+  </view>
+
+  <empty-state wx:elif="{{!loading}}" icon="🚗" title="暂无车辆" desc="添加您的车辆信息" />
+
+  <!-- Add Vehicle Form -->
+  <view class="add-card card">
+    <text class="section-title">🚗 添加车辆</text>
+    <view class="form-section">
+      <text class="form-label">品牌</text>
+      <input class="form-input" placeholder="如：大众、丰田" value="{{form.brand}}" bindinput="onFormInput" data-field="brand" />
+    </view>
+    <view class="form-section">
+      <text class="form-label">型号</text>
+      <input class="form-input" placeholder="如：帕萨特、卡罗拉" value="{{form.model}}" bindinput="onFormInput" data-field="model" />
+    </view>
+    <view class="form-row">
+      <view class="form-section flex-1">
+        <text class="form-label">颜色</text>
+        <input class="form-input" placeholder="白色" value="{{form.color}}" bindinput="onFormInput" data-field="color" />
+      </view>
+      <view class="form-section flex-1" style="margin-left:20rpx;">
+        <text class="form-label">座位数</text>
+        <input class="form-input" type="number" placeholder="4" value="{{form.seats}}" bindinput="onFormInput" data-field="seats" />
+      </view>
+    </view>
+    <view class="form-section">
+      <text class="form-label">车牌号</text>
+      <input class="form-input" placeholder="如：京A88888" value="{{form.plateNumber}}" bindinput="onFormInput" data-field="plateNumber" />
+    </view>
+    <button class="btn-primary" bind:tap="addVehicle">保存车辆</button>
+  </view>
+</view>

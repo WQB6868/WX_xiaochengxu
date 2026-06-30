@@ -1,0 +1,3 @@
+<picker mode="region" value="{{region}}" bindchange="onChange">
+  <slot></slot>
+</picker>

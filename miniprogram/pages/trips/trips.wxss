@@ -1,0 +1,26 @@
+.tabs { display: flex; background: #fff; border-radius: var(--radius-lg); padding: 8rpx; margin-bottom: 20rpx; box-shadow: var(--shadow-card); }
+.tab { flex: 1; text-align: center; padding: 16rpx; border-radius: var(--radius-md); font-size: 28rpx; color: var(--text-secondary); }
+.tab.active { background: var(--color-primary); color: #fff; font-weight: 500; }
+.status-filters { display: flex; gap: 12rpx; margin-bottom: 20rpx; flex-wrap: wrap; }
+.status-filter { padding: 8rpx 20rpx; border-radius: var(--radius-round); font-size: 22rpx; background: #fff; box-shadow: var(--shadow-card); color: var(--text-secondary); }
+.status-filter.active { background: var(--color-primary-light); color: var(--color-primary); }
+.trip-list { padding-bottom: 30rpx; }
+.trip-item { margin-bottom: 16rpx; }
+.trip-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12rpx; }
+.trip-route { font-size: 30rpx; font-weight: 600; }
+.trip-status { font-size: 22rpx; padding: 4rpx 14rpx; border-radius: var(--radius-sm); }
+.status-recruiting { color: var(--color-primary); background: var(--color-primary-light); }
+.status-full { color: var(--color-orange); background: #fef3e7; }
+.status-departed { color: var(--color-blue); background: #e8f4fd; }
+.status-completed { color: var(--text-hint); background: #f0f0f0; }
+.status-cancelled { color: var(--color-warning); background: #fde8e8; }
+.status-pending { color: var(--color-orange); background: #fef3e7; }
+.status-confirmed { color: var(--color-primary); background: var(--color-primary-light); }
+
+/* 第二行：日期时间 */
+.trip-date-time { font-size: 24rpx; color: var(--text-hint); margin-bottom: 8rpx; }
+
+/* 第三行：剩余座位 + 价格 */
+.trip-seats { display: flex; justify-content: space-between; align-items: center; font-size: 26rpx; color: var(--text-secondary); }
+.trip-price { color: var(--color-orange); font-weight: 500; }
+.trip-seats .my-status { font-size: 22rpx; padding: 2rpx 12rpx; border-radius: var(--radius-sm); }

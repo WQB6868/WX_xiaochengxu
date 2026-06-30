@@ -1,0 +1,83 @@
+const cloud = require("wx-server-sdk");
+cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
+const db = cloud.database();
+const _ = db.command;
+
+exports.main = async function(event, context) {
+  const { OPENID } = cloud.getWXContext();
+  try {
+    var tripId = event.tripId;
+    var trip = await db.collection("trips").doc(tripId).get();
+    if (!trip.data) return { code: 2001, message: "行程不存在" };
+    var t = trip.data;
+    if (t.status !== "recruiting") return { code: 2003, message: "该行程已停止招募" };
+    if (t._openid === OPENID) return { code: 3002, message: "不能申请自己的行程" };
+    if (t.passengerCount >= t.seats) return { code: 2002, message: "座位已满" };
+    
+    var existing = (t.passengers || []).find(function(p) { return p._openid === OPENID; });
+    if (existing && existing.status !== "rejected" && existing.status !== "cancelled") {
+      return { code: 3001, message: "您已申请过该行程" };
+    }
+    
+    var user = await db.collection("users").doc(OPENID).get();
+    var userData = user.data || {};
+    var passengerEntry = {
+      _openid: OPENID,
+      nickname: userData.nickName || "",
+      avatarUrl: userData.avatarUrl || "",
+      status: "pending",
+      applyTime: db.serverDate(),
+      confirmTime: null,
+      cancelTime: null,
+      reason: ""
+    };
+    
+    if (existing) {
+      // Update existing entry (reapply after rejection/cancellation)
+      var passengers = t.passengers || [];
+      var idx = passengers.findIndex(function(p) { return p._openid === OPENID; });
+      passengers[idx] = passengerEntry;
+      await db.collection("trips").doc(tripId).update({
+        data: { passengers: passengers }
+      });
+      await db.collection("applications").where({
+        tripId: tripId,
+        passengerOpenId: OPENID
+      }).update({
+        data: { status: "pending", updateTime: db.serverDate() }
+      });
+    } else {
+      // New application
+      await db.collection("trips").doc(tripId).update({
+        data: { "passengers": _.push(passengerEntry) }
+      });
+      await db.collection("applications").add({
+        data: {
+          tripId: tripId,
+          driverOpenId: t._openid,
+          passengerOpenId: OPENID,
+          tripInfo: {
+            from: { city: t.from.city, address: t.from.address },
+            to: { city: t.to.city, address: t.to.address },
+            departDate: t.departDate,
+            departTime: t.departTime,
+            price: t.price
+          },
+          passengerInfo: {
+            nickName: userData.nickName || "",
+            avatarUrl: userData.avatarUrl || "",
+            phone: userData.phone || ""
+          },
+          status: "pending",
+          message: event.message || "",
+          createTime: db.serverDate(),
+          updateTime: db.serverDate()
+        }
+      });
+    }
+    
+    return { code: 0, data: { status: "pending" } };
+  } catch (err) {
+    return { code: 4001, message: err.message };
+  }
+};

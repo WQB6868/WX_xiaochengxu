@@ -1,0 +1,112 @@
+<view class="page-container">
+  <view class="loading-container" wx:if="{{loading}}">
+    <view class="loading-spinner"></view>
+  </view>
+
+  <block wx:else>
+    <view class="contact-card" wx:if="{{driverPhone}}">
+      <view class="contact-card-row">
+        <text class="contact-card-label">车主手机</text>
+        <text class="contact-card-phone">{{driverPhone}}</text>
+      </view>
+      <button class="contact-call-btn" wx:if="{{!isOwner}}" bind:tap="contactDriver">拨打车主电话</button>
+    </view>
+
+    <view class="driver-card card">
+      <view class="driver-header">
+        <image class="driver-avatar" src="{{trip.driver.avatarUrl || '/assets/icons/default_avatar.png'}}" mode="aspectFill" />
+        <view class="driver-meta">
+          <text class="driver-name">{{trip.driver.nickName || '车主'}}</text>
+          <view class="driver-stats">
+            <text class="rating">⭐ {{trip.driver.ratingAvg || '新车主'}}</text>
+            <text class="trip-count" wx:if="{{trip.driver.tripCountAsDriver > 0}}">{{trip.driver.tripCountAsDriver}}次行程</text>
+            <text class="verified-badge" wx:if="{{trip.driver.idCardVerified}}">✔ 已实名</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="info-card card">
+      <view class="info-row">
+        <text class="info-icon">📍</text>
+        <view class="info-content">
+          <text class="info-route">{{trip.from.city}} · {{trip.from.address}}</text>
+          <text class="info-arrow">↓</text>
+          <text class="info-route">{{trip.to.city}} · {{trip.to.address}}</text>
+        </view>
+      </view>
+      <view class="info-divider"></view>
+      <view class="info-row">
+        <text class="info-icon">📅</text>
+        <text class="info-text">{{dateDisplay}}</text>
+      </view>
+      <view class="info-row">
+        <text class="info-icon">🚗</text>
+        <text class="info-text">{{vehicleDisplay}}</text>
+      </view>
+      <view class="info-row">
+        <text class="info-icon">💰</text>
+        <text class="info-text price-text">{{priceDisplay}}</text>
+      </view>
+      <view class="info-row">
+        <text class="info-icon">👥</text>
+        <text class="info-text">已确认 {{trip.passengerCount}}/{{trip.seats}} 座，剩余 {{trip.remainingSeats}} 座</text>
+      </view>
+    </view>
+
+    <view class="card" wx:if="{{trip.tags && trip.tags.length > 0}}">
+      <view class="section-title">🏷 标签</view>
+      <view class="tags-group">
+        <text class="tag" wx:for="{{trip.tags}}" wx:key="*this">{{item}}</text>
+      </view>
+    </view>
+
+    <view class="card" wx:if="{{trip.remarks}}">
+      <view class="section-title">📝 备注</view>
+      <text class="remarks-text">{{trip.remarks}}</text>
+    </view>
+
+    <view class="map-card card" wx:if="{{hasCoords}}">
+      <map class="trip-map"
+        latitude="{{trip.from.latitude}}" longitude="{{trip.from.longitude}}"
+        markers="{{markers}}" enable-3D show-compass />
+    </view>
+
+    <view class="action-bar safe-area-bottom">
+      <view wx:if="{{isOwner}}" class="applicants-section">
+        <view class="applicants-header" bind:tap="toggleApplicants">
+          <text>👥 同行乘客 ({{passengerCount}})</text>
+          <text class="toggle-icon">{{showApplicants ? '▲' : '▼'}}</text>
+        </view>
+        <view class="applicants-list" wx:if="{{showApplicants && trip.passengers && trip.passengers.length > 0}}">
+          <view class="applicant-item" wx:for="{{trip.passengers}}" wx:key="openid">
+            <image class="applicant-avatar" src="{{item.avatarUrl || '/assets/icons/default_avatar.png'}}" mode="aspectFill" />
+            <view class="applicant-info">
+              <text class="applicant-name">{{item.nickname || '乘客'}}</text>
+              <text class="applicant-phone" wx:if="{{item.phone}}">☎ {{item.phone}}</text>
+              <text class="applicant-confirmed">✅ 已确认同行</text>
+            </view>
+          </view>
+        </view>
+        <view class="applicants-empty" wx:elif="{{showApplicants && (!trip.passengers || trip.passengers.length === 0)}}">暂无同行乘客</view>
+      </view>
+
+      <button wx:if="{{isOwner && trip.status === 'recruiting'}}" class="btn-primary" bind:tap="startTrip">🚀 确认发车</button>
+      <button wx:if="{{isOwner}}" class="btn-danger" bind:tap="deleteTrip">🗑 删除行程</button>
+
+      <block wx:if="{{!isOwner && !myConfirm}}">
+        <view class="contact-hint">
+          <text>联系车主确认同行后，点击下方按钮</text>
+        </view>
+        <button class="btn-primary" bind:tap="confirmRide">✅ 确认同行</button>
+      </block>
+      <block wx:elif="{{!isOwner && myConfirm}}">
+        <view class="apply-status confirmed">
+          <text class="status-icon">✅</text>
+          <text class="status-text">已确认同行，出发前请联系车主</text>
+        </view>
+        <button class="btn-secondary" bind:tap="cancelConfirm">取消确认</button>
+      </block>
+    </view>
+  </block>
+</view>
