@@ -179,7 +179,7 @@ Page({
       content: "确定确认该乘客同行吗？",
       success: function(res) {
         if (res.confirm) {
-          api.callFunction("confirmPassenger", {
+          api.callFunction("confirmRide", {
             tripId: that.data.tripId,
             passengerOpenId: passengerOpenId,
             action: "confirm"
@@ -203,7 +203,7 @@ Page({
       confirmColor: "#fa5151",
       success: function(res) {
         if (res.confirm) {
-          api.callFunction("confirmPassenger", {
+          api.callFunction("confirmRide", {
             tripId: that.data.tripId,
             passengerOpenId: passengerOpenId,
             action: "reject"

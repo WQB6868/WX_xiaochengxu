@@ -10,6 +10,56 @@ exports.main = async function(event, context) {
     var trip = await db.collection("trips").doc(tripId).get();
     if (!trip.data) return { code: 2001, message: "行程不存在" };
     var t = trip.data;
+
+    // Owner confirm/reject a passenger
+    var passengerOpenId = event.passengerOpenId;
+    var action = event.action;
+    
+    if (passengerOpenId && t._openid === OPENID) {
+      // This is owner action: confirm or reject a specific passenger
+      if (action !== "confirm" && action !== "reject") {
+        return { code: 1001, message: "无效操作" };
+      }
+      var passengers = t.passengers || [];
+      var idx = passengers.findIndex(function(p) { return p._openid === passengerOpenId; });
+      if (idx === -1) return { code: 1001, message: "未找到乘客申请" };
+
+      if (action === "confirm") {
+        passengers[idx].status = "confirmed";
+        passengers[idx].confirmTime = db.serverDate();
+        var addCount = passengers[idx].passengerCount || 1;
+        var newCount = (t.passengerCount || 0) + addCount;
+        var updateData = {
+          passengers: passengers,
+          passengerCount: newCount
+        };
+        if (newCount >= t.seats) {
+          updateData.status = "full";
+        }
+        await db.collection("trips").doc(tripId).update({ data: updateData });
+        await db.collection("applications").where({
+          tripId: tripId,
+          passengerOpenId: passengerOpenId
+        }).update({
+          data: { status: "confirmed", updateTime: db.serverDate() }
+        });
+      } else {
+        passengers[idx].status = "rejected";
+        passengers[idx].reason = event.rejectReason || "";
+        await db.collection("trips").doc(tripId).update({
+          data: { passengers: passengers }
+        });
+        await db.collection("applications").where({
+          tripId: tripId,
+          passengerOpenId: passengerOpenId
+        }).update({
+          data: { status: "rejected", rejectReason: event.rejectReason || "", updateTime: db.serverDate() }
+        });
+      }
+      return { code: 0, data: { status: action === "confirm" ? "confirmed" : "rejected" } };
+    }
+
+    // Passenger self-confirm (original behavior)
     if (t.passengerCount >= t.seats) return { code: 2002, message: "座位已满" };
 
     var passengers = t.passengers || [];
