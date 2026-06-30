@@ -171,24 +171,51 @@ Page({
     if (!form.fromCity) { wx.showToast({ title: "请输入出发城市", icon: "none" }); return; }
     if (!form.toCity) { wx.showToast({ title: "请输入目的城市", icon: "none" }); return; }
 
+    var openid = getApp().globalData.openid;
+    if (!openid) { wx.showToast({ title: "登录状态异常", icon: "none" }); return; }
+
+    // Save phone to user profile
     if (form.requestPhone && form.requestPhone.length === 11) {
-      var openid = getApp().globalData.openid;
-      if (openid) {
-        wx.cloud.database().collection("users").doc(openid).update({
-          data: { phone: form.requestPhone }
-        }).catch(function() {});
-      }
+      wx.cloud.database().collection("users").doc(openid).update({
+        data: { phone: form.requestPhone }
+      }).catch(function() {});
     }
-    api.callFunction("publishRequest", {
+
+    wx.showLoading({ title: "发布中...", mask: true });
+
+    // Try cloud function first
+    api.callFunctionSilent("publishRequest", {
       fromCity: form.fromCity, toCity: form.toCity,
       departDate: form.departDate || undefined,
       passengers: form.passengers, contactPhone: form.requestPhone,
       remarks: form.remarks
     }).then(function() {
+      wx.hideLoading();
       wx.showToast({ title: "求车信息已发布", icon: "success" });
       setTimeout(function() { wx.navigateBack(); }, 1500);
-    }).catch(function() {
-      wx.showToast({ title: "发布失败，请稍后再试", icon: "none" });
+    }).catch(function(err) {
+      wx.hideLoading();
+      // Fallback: direct database write
+      var db = wx.cloud.database();
+      db.collection("requests").add({
+        data: {
+          _openid: openid,
+          fromCity: form.fromCity,
+          toCity: form.toCity,
+          departDate: form.departDate ? new Date(form.departDate) : null,
+          passengers: parseInt(form.passengers) || 1,
+          contactPhone: form.requestPhone || "",
+          remarks: form.remarks || "",
+          status: "active",
+          createTime: db.serverDate(),
+          updateTime: db.serverDate()
+        }
+      }).then(function() {
+        wx.showToast({ title: "求车信息已发布", icon: "success" });
+        setTimeout(function() { wx.navigateBack(); }, 1500);
+      }).catch(function() {
+        wx.showToast({ title: "发布失败，请先上传云函数或检查网络", icon: "none" });
+      });
     });
   },
 
