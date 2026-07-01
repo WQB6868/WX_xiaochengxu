@@ -174,7 +174,6 @@ Page({
     var openid = getApp().globalData.openid;
     if (!openid) { wx.showToast({ title: "登录状态异常", icon: "none" }); return; }
 
-    // Save phone to user profile
     if (form.requestPhone && form.requestPhone.length === 11) {
       wx.cloud.database().collection("users").doc(openid).update({
         data: { phone: form.requestPhone }
@@ -183,38 +182,40 @@ Page({
 
     wx.showLoading({ title: "发布中...", mask: true });
 
-    // Try cloud function first
-    api.callFunctionSilent("publishRequest", {
-      fromCity: form.fromCity, toCity: form.toCity,
-      departDate: form.departDate || undefined,
-      passengers: form.passengers, contactPhone: form.requestPhone,
-      remarks: form.remarks
+    wx.cloud.database().collection("requests").add({
+      data: {
+        _openid: openid,
+        fromCity: form.fromCity,
+        toCity: form.toCity,
+        departDate: form.departDate,
+        passengers: parseInt(form.passengers) || 1,
+        contactPhone: form.requestPhone || "",
+        remarks: form.remarks || "",
+        status: "active",
+        createTime: wx.cloud.database().serverDate(),
+        updateTime: wx.cloud.database().serverDate()
+      }
     }).then(function() {
       wx.hideLoading();
       wx.showToast({ title: "求车信息已发布", icon: "success" });
       setTimeout(function() { wx.navigateBack(); }, 1500);
     }).catch(function(err) {
+      console.warn("publishRequest direct write failed:", err);
       wx.hideLoading();
-      // Fallback: direct database write
-      var db = wx.cloud.database();
-      db.collection("requests").add({
-        data: {
-          _openid: openid,
-          fromCity: form.fromCity,
-          toCity: form.toCity,
-          departDate: form.departDate ? new Date(form.departDate) : null,
-          passengers: parseInt(form.passengers) || 1,
-          contactPhone: form.requestPhone || "",
-          remarks: form.remarks || "",
-          status: "active",
-          createTime: db.serverDate(),
-          updateTime: db.serverDate()
-        }
+      api.callFunctionSilent("publishRequest", {
+        fromCity: form.fromCity, toCity: form.toCity,
+        departDate: form.departDate || undefined,
+        passengers: form.passengers, contactPhone: form.requestPhone,
+        remarks: form.remarks
       }).then(function() {
         wx.showToast({ title: "求车信息已发布", icon: "success" });
         setTimeout(function() { wx.navigateBack(); }, 1500);
       }).catch(function() {
-        wx.showToast({ title: "发布失败，请先上传云函数或检查网络", icon: "none" });
+        wx.showModal({
+          title: "发布失败",
+          content: "请在微信开发者工具中：\n1. 创建数据库集合「requests」\n2. 上传并部署「publishRequest」云函数\n\n如果集合已存在，请检查安全规则是否允许前端写入",
+          showCancel: false
+        });
       });
     });
   },
