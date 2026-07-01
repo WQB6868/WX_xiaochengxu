@@ -134,7 +134,7 @@
       </block>
       <!-- 乘客请求卡片 -->
       <block wx:elif="{{searchTab === 'all' || searchTab === 'request'}}">
-      <view class="inline-card request-card" wx:elif="{{item._type == 'request'}}" data-id="{{item._id}}" bind:tap="goPassengerDetail">
+      <view class="inline-card request-card" wx:if="{{item._type == 'request'}}" data-id="{{item._id}}" bind:tap="goPassengerDetail">
         <view class="card-badge">🙋 乘客</view>
         <view class="card-row route-row">
           <text class="city-from">{{item._fromCity}}</text>
