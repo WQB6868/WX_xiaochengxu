@@ -108,20 +108,6 @@
       <button class="btn-primary" bind:tap="submitPublish">🚗 确认发布车源</button>
     </view>
 
-    <view class="section-divider"></view>
-    <view class="section-title">🔍 发现乘客</view>
-    <view class="passenger-list" wx:if="{{passengerRequests.length > 0}}">
-      <view wx:for="{{passengerRequests}}" wx:key="_id" class="request-item" bind:tap="callPassenger" data-phone="{{item.contactPhone}}">
-        <view class="request-route">{{item.fromCity}} → {{item.toCity}}</view>
-        <view class="request-meta">
-          <text wx:if="{{item.departDate}}">📅 {{formatDateShort(item.departDate)}}</text>
-          <text>👥 {{item.passengers}}人</text>
-          <text wx:if="{{item.contactPhone}}">☎ {{item.contactPhone}}</text>
-        </view>
-        <view class="request-remarks" wx:if="{{item.remarks}}">{{item.remarks}}</view>
-      </view>
-    </view>
-    <empty-state wx:if="{{passengerRequests.length === 0}}" icon="🚗" title="暂无乘客求车" desc="求车信息将显示在这里" />
   </block>
 
   <!-- ====== 求车模式 ====== -->

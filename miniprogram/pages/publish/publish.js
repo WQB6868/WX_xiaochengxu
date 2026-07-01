@@ -17,7 +17,7 @@ Page({
     tagOptions: constants.TRIP_TAGS,
     today: (function() { var d = new Date(); return d.getFullYear() + "-" + ((d.getMonth()+1)<10?"0":"") + (d.getMonth()+1) + "-" + (d.getDate()<10?"0":"") + d.getDate(); })(),
     // request search fields removed
-    passengerRequests: []
+    
   },
 
   onLoad: function(options) {
@@ -26,7 +26,7 @@ Page({
     wx.setNavigationBarTitle({ title: mode === "request" ? "求车" : "发布车源" });
     if (mode === "publish") {
       auth.checkVerified().catch(function() {});
-      this.loadRequests();
+      this.uests();
     }
   },
 
@@ -34,9 +34,9 @@ Page({
     var mode = e.currentTarget.dataset.mode;
     this.setData({ mode: mode });
     wx.setNavigationBarTitle({ title: mode === "request" ? "求车" : "发布车源" });
-    if (mode === "publish") { this.loadRequests(); }
+
     if (mode === "request") {
-      this.setData({ passengerRequests: [] });
+      this.setData({  });
     }
   },
 
@@ -220,22 +220,18 @@ Page({
     });
   },
 
-  formatDateShort: function(d) {
-    if (!d) return "";
     try {
       var date = new Date(d);
       if (isNaN(date.getTime())) return "";
       return (date.getMonth() + 1) + "月" + date.getDate() + "日";
     } catch(e) { return ""; }
   },
-  callPassenger: function(e) {
-    var phone = e.currentTarget.dataset.phone;
     if (phone) { wx.makePhoneCall({ phoneNumber: phone }); }
   },
-  loadRequests: function() {
+  uests: function() {
     var that = this;
     api.callFunctionSilent("searchRequests", { page: 1, pageSize: 50 }).then(function(data) {
-      that.setData({ passengerRequests: data.list || [] });
+
     }).catch(function() {});
   },
   goDetail: function(e) {

@@ -6,9 +6,12 @@
     <view class="tab {{activeTab === 'passenger' ? 'active' : ''}}" data-tab="passenger" bind:tap="switchTab">
       🙋 我申请的
     </view>
-  </view>
 
-  <view class="status-filters">
+    <view class="tab {{activeTab === 'request' ? 'active' : ''}}" data-tab="request" bind:tap="switchTab">
+      📋 我求车的
+    </view>  </view>
+
+  <view class="status-filters" wx:if="{{activeTab !== 'request'}}">
     <view class="status-filter {{activeStatus === '' ? 'active' : ''}}" data-status="" bind:tap="filterStatus">全部</view>
     <view class="status-filter {{activeStatus === 'recruiting' ? 'active' : ''}}" data-status="recruiting" bind:tap="filterStatus">招募中</view>
     <view class="status-filter {{activeStatus === 'departed' ? 'active' : ''}}" data-status="departed" bind:tap="filterStatus">已出发</view>
@@ -16,16 +19,38 @@
   </view>
 
   <view class="trip-list" wx:if="{{tripList.length > 0}}">
-    <view wx:for="{{tripList}}" wx:key="_id" class="trip-item card" bind:tap="goDetail" data-id="{{item._id}}">
-      <!-- 第一行：出发地 → 目的地 + 状态 -->
-      <view class="trip-header">
-        <text class="trip-route">{{item.from.city}} → {{item.to.city}}</text>
-        <text class="trip-status status-{{item.status}}">{{statusText(item.status)}}</text>
-      </view>
-      <!-- 第二行：日期 + 时间 -->
-      <view class="trip-date-time">
-        <text>📅 {{item._dateDisplay}}</text>
-      </view>
+        <view wx:for="{{tripList}}" wx:key="_id" class="trip-item card">
+      <!-- 求车卡片 -->
+      <block wx:if="{{item._type == 'request'}}">
+        <view class="trip-header">
+          <text class="trip-route">{{item.fromCity}} → {{item.toCity}}</text>
+          <text class="trip-status status-active">待确认</text>
+        </view>
+        <view class="trip-date-time">
+          <text>📅 {{item._dateDisplay}}</text>
+        </view>
+        <view class="trip-seats">
+          <text>👥 {{item.passengers}}人 求同行</text>
+          <text wx:if="{{item.contactPhone}}" class="trip-phone">☎ {{item.contactPhone}}</text>
+        </view>
+      </block>
+      <!-- 车源卡片 -->
+      <block wx:else>
+        <view bind:tap="goDetail" data-id="{{item._id}}">
+          <view class="trip-header">
+            <text class="trip-route">{{item.from.city}} → {{item.to.city}}</text>
+            <text class="trip-status status-{{item.status}}">{{statusText(item.status)}}</text>
+          </view>
+          <view class="trip-date-time">
+            <text>📅 {{item._dateDisplay}}</text>
+          </view>
+          <view class="trip-seats">
+            <text>🪑 剩余 {{item.remainingSeats}} 座</text>
+            <text class="trip-price">{{formatPrice(item.price)}}</text>
+          </view>
+        </view>
+      </block>
+    </view>
       <!-- 第三行：剩余座位数 -->
       <view class="trip-seats">
         <text>🪑 剩余 {{item.remainingSeats}} 座</text>

@@ -155,24 +155,54 @@ Page({
     this.loadTrips(true);
   },
 
-  loadTrips: function(refresh) {
+    loadTrips: function(refresh) {
     var that = this;
     var params = this.data.searchParams;
     if (refresh) { this.setData({ page: 1, initialLoading: true, searched: true }); }
     var page = refresh ? 1 : this.data.page + 1;
-    api.callFunction("searchTrip", {
+    var searchQuery = {
       fromCity: params.fromCity, toCity: params.toCity,
       departDate: params.date || undefined,
       page: page, pageSize: this.data.pageSize
-    }).then(function(data) {
-      var list = (data.list || []).map(function(item) {
+    };
+    var tripPromise = api.callFunction("searchTrip", searchQuery);
+    var reqPromise = new Promise(function(resolve) {
+      api.callFunctionSilent("searchRequests", searchQuery).then(function(data) {
+        resolve(data);
+      }).catch(function() {
+        try {
+          var db = wx.cloud.database();
+          var cond = { status: "active" };
+          if (params.fromCity) { cond.fromCity = db.RegExp({ regexp: params.fromCity, options: "i" }); }
+          if (params.toCity) { cond.toCity = db.RegExp({ regexp: params.toCity, options: "i" }); }
+          db.collection("requests").where(cond).orderBy("createTime", "desc").limit(20).get().then(function(res) {
+            resolve({ list: res.data || [], total: (res.data || []).length, hasMore: false });
+          }).catch(function() { resolve({ list: [], total: 0, hasMore: false }); });
+        } catch(e) { resolve({ list: [], total: 0, hasMore: false }); }
+      });
+    });
+    Promise.all([tripPromise, reqPromise]).then(function(results) {
+      var tripData = results[0];
+      var reqData = results[1];
+      var tripList = (tripData.list || []).map(function(item) {
+        item._type = "trip";
         item._dateDisplay = item.departDate ? that.formatDate(item.departDate) + " " + (item.departTime || "") : (item.departTime || "");
         return item;
       });
+      var reqList = (reqData.list || []).map(function(item) {
+        item._type = "request";
+        item._dateDisplay = item.departDate ? that.formatDate(item.departDate) : "日期待定";
+        item._fromCity = item.fromCity;
+        item._toCity = item.toCity;
+        item._passengers = item.passengers || 1;
+        return item;
+      });
+      var merged = tripList.concat(reqList);
+      var total = (tripData.total || 0) + (reqData.total || 0);
       if (refresh) {
-        that.setData({ tripList: list, total: data.total, page: page, hasMore: data.hasMore, initialLoading: false, loadingMore: false });
+        that.setData({ tripList: merged, total: total, page: page, hasMore: tripData.hasMore || reqData.hasMore, initialLoading: false, loadingMore: false });
       } else {
-        that.setData({ tripList: that.data.tripList.concat(list.map(function(item) { item._dateDisplay = item.departDate ? that.formatDate(item.departDate) + " " + (item.departTime || "") : (item.departTime || ""); return item; })), page: page, hasMore: data.hasMore, loadingMore: false });
+        that.setData({ tripList: that.data.tripList.concat(merged), page: page, hasMore: tripData.hasMore || reqData.hasMore, loadingMore: false });
       }
       wx.stopPullDownRefresh();
     }).catch(function() { that.setData({ initialLoading: false, loadingMore: false, searched: true }); wx.stopPullDownRefresh(); });
