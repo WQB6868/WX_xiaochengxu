@@ -26,7 +26,7 @@ Page({
     wx.setNavigationBarTitle({ title: mode === "request" ? "求车" : "发布车源" });
     if (mode === "publish") {
       auth.checkVerified().catch(function() {});
-      this.uests();
+
     }
   },
 
