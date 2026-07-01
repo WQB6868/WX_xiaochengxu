@@ -220,20 +220,6 @@ Page({
     });
   },
 
-    try {
-      var date = new Date(d);
-      if (isNaN(date.getTime())) return "";
-      return (date.getMonth() + 1) + "月" + date.getDate() + "日";
-    } catch(e) { return ""; }
-  },
-    if (phone) { wx.makePhoneCall({ phoneNumber: phone }); }
-  },
-  uests: function() {
-    var that = this;
-    api.callFunctionSilent("searchRequests", { page: 1, pageSize: 50 }).then(function(data) {
-
-    }).catch(function() {});
-  },
   goDetail: function(e) {
     wx.navigateTo({ url: "/miniprogram/pages/detail/detail?id=" + e.currentTarget.dataset.id });
   }
