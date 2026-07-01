@@ -100,8 +100,16 @@
 
   <!-- 行程列表 -->
   <view class="trip-list" wx:if="{{tripList.length > 0}}">
-    <view class="result-count" wx:if="{{searched}}">共 {{total}} 个结果（车源+乘客）</view>
+    <view class="result-tabs" wx:if="{{searched}}">
+  <view class="result-count">共 {{total}} 个结果</view>
+  <view class="search-tabs">
+    <view class="search-tab {{searchTab === 'all' ? 'active' : ''}}" data-tab="all" bind:tap="switchSearchTab">全部</view>
+    <view class="search-tab {{searchTab === 'trip' ? 'active' : ''}}" data-tab="trip" bind:tap="switchSearchTab">🚗 车源</view>
+    <view class="search-tab {{searchTab === 'request' ? 'active' : ''}}" data-tab="request" bind:tap="switchSearchTab">🙋 乘客</view>
+  </view>
+</view>
     <view wx:for="{{tripList}}" wx:key="_id">
+      <block wx:if="{{searchTab === 'all' || searchTab === 'trip'}}">
       <view class="inline-card" wx:if="{{item._type == 'trip'}}" data-id="{{item._id}}" bind:tap="goDetail">
         <view class="card-row route-row">
           <text class="city-from" wx:if="{{item.from && item.from.city}}">{{item.from.city}}</text>
@@ -123,7 +131,9 @@
           <text class="seats-text">剩余 {{item.seats || 0}} 座</text>
         </view>
       </view>
+      </block>
       <!-- 乘客请求卡片 -->
+      <block wx:elif="{{searchTab === 'all' || searchTab === 'request'}}">
       <view class="inline-card request-card" wx:elif="{{item._type == 'request'}}" data-id="{{item._id}}" bind:tap="goPassengerDetail">
         <view class="card-badge">🙋 乘客</view>
         <view class="card-row route-row">
@@ -138,6 +148,7 @@
           <text class="seats-text">👥 {{item._passengers}}人 求同行</text>
         </view>
       </view>
+      </block>
     </view>
     <loading-more loading="{{loadingMore}}" hasMore="{{hasMore}}" />
   </view>

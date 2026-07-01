@@ -250,3 +250,8 @@
 /* 乘客请求卡片 */
 .request-card { border-left: 8rpx solid #ff9800; }
 .card-badge { display: inline-block; padding: 4rpx 16rpx; background: #fff3e0; color: #e65100; border-radius: 20rpx; font-size: 22rpx; font-weight: 600; margin-bottom: 8rpx; }
+/* 搜索结果切换标签 */
+.result-tabs { margin-bottom: 16rpx; }
+.search-tabs { display: flex; gap: 12rpx; margin-top: 12rpx; }
+.search-tab { padding: 8rpx 24rpx; border-radius: 28rpx; font-size: 24rpx; color: #666; background: #f5f5f5; }
+.search-tab.active { color: #fff; background: var(--color-primary); font-weight: 600; }

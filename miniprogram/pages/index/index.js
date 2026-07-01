@@ -16,7 +16,7 @@ Page({
     ],
     dateList: [], activeRoute: -1, activeDate: -1,
     page: 1, pageSize: 20, total: 0, hasMore: false,
-    loadingMore: false, initialLoading: false, searched: false,
+    loadingMore: false, initialLoading: false, searched: false, searchTab: "all",
     // 输入相关
     showSuggest: "", filteredCities: [], inputFocus: ""
   },
@@ -202,7 +202,7 @@ Page({
       if (refresh) {
         that.setData({ tripList: merged, total: total, page: page, hasMore: tripData.hasMore || reqData.hasMore, initialLoading: false, loadingMore: false });
       } else {
-        that.setData({ tripList: that.data.tripList.concat(merged), page: page, hasMore: tripData.hasMore || reqData.hasMore, loadingMore: false });
+         that.setData({ tripList: allConcat,  page: page, hasMore: tripData.hasMore || reqData.hasMore, loadingMore: false });
       }
       wx.stopPullDownRefresh();
     }).catch(function() { that.setData({ initialLoading: false, loadingMore: false, searched: true }); wx.stopPullDownRefresh(); });
@@ -216,6 +216,7 @@ Page({
       return (date.getMonth() + 1) + "月" + date.getDate() + "日";
     } catch(e) { return ""; }
   },
+    switchSearchTab: function(e) { this.setData({ searchTab: e.currentTarget.dataset.tab }); },
   goDetail: function(e) { wx.navigateTo({ url: "/miniprogram/pages/detail/detail?id=" + (e.currentTarget.dataset.id || e.detail) }); },
   goPassengerDetail: function(e) { wx.navigateTo({ url: "/miniprogram/pages/passenger-detail/passenger-detail?id=" + e.currentTarget.dataset.id }); },
   goPublish: function() { wx.navigateTo({ url: "/miniprogram/pages/publish/publish" }); },
