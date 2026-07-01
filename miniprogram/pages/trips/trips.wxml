@@ -51,12 +51,6 @@
         </view>
       </block>
     </view>
-      <!-- 第三行：剩余座位数 -->
-      <view class="trip-seats">
-        <text>🪑 剩余 {{item.remainingSeats}} 座</text>
-        <text class="trip-price">{{formatPrice(item.price)}}</text>
-      </view>
-    </view>
     <loading-more loading="{{loadingMore}}" hasMore="{{hasMore}}" />
   </view>
 
