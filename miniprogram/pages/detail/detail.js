@@ -83,7 +83,7 @@ Page({
         hasCoords: hasCoords, markers: markers,
         dateDisplay: dateDisplay, vehicleDisplay: vehicleDisplay,
         priceDisplay: priceDisplay, driverPhone: driverPhone,
-        applyPhone: userPhone || "", applyCount: applyCount,
+        applyPhone: "", applyCount: applyCount,
         applyStatusText: applyStatusText, applyStatusIcon: applyStatusIcon,
         applyStatusClass: applyStatusClass,
         applyPhoneDisplay: applyPhoneDisplay,
@@ -167,7 +167,7 @@ Page({
 
   // 重新申请（重置后重填）
   resetApply: function() {
-    this.setData({ hasApplied: false, applyPhone: getApp().globalData.userInfo.phone || "", applyCount: 1 });
+    this.setData({ hasApplied: false, applyPhone: "", applyCount: 1 });
   },
 
   // 车主：确认乘客
@@ -186,6 +186,8 @@ Page({
           }).then(function() {
             wx.showToast({ title: "已确认乘客", icon: "success" });
             that.loadDetail();
+          }).catch(function(err) {
+            wx.showToast({ title: (err && err.message) || "确认失败", icon: "none" });
           });
         }
       }
@@ -210,6 +212,8 @@ Page({
           }).then(function() {
             wx.showToast({ title: "已拒绝", icon: "success" });
             that.loadDetail();
+          }).catch(function(err) {
+            wx.showToast({ title: (err && err.message) || "拒绝失败", icon: "none" });
           });
         }
       }
@@ -302,5 +306,11 @@ Page({
 
   rateTrip: function() {
     wx.showToast({ title: "评价功能开发中", icon: "none" });
+  },
+  callPassenger: function(e) {
+    var phone = e.currentTarget.dataset.phone;
+    if (phone) {
+      wx.makePhoneCall({ phoneNumber: phone });
+    }
   }
 });

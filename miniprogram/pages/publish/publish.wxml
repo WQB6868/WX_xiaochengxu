@@ -138,6 +138,14 @@
         </picker>
       </view>
       <view class="form-section flex-1" style="margin-left:20rpx;">
+        <text class="form-label">🕐 出行时间</text>
+        <picker mode="time" value="{{form.departTime}}" bindchange="onTimeChange">
+          <view class="picker-display {{form.departTime ? '' : 'placeholder'}}">{{form.departTime || '选择时间'}}</view>
+        </picker>
+      </view>
+    </view>
+    <view class="form-row">
+      <view class="form-section flex-1">
         <text class="form-label">🙋 同行人数</text>
         <view class="stepper">
           <view class="stepper-btn" bind:tap="changePassengers" data-delta="-1">−</view>

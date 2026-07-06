@@ -45,23 +45,42 @@ exports.main = async function(event, context) {
     var pu = passengerUser.data || {};
 
     // Add passenger to trip
-    var entry = {
-      _openid: passengerOpenId,
-      nickname: nickname || pu.nickName || "乘客",
-      avatarUrl: avatarUrl || pu.avatarUrl || "",
-      phone: phone || pu.phone || "",
-      passengerCount: passengerCount,
-      status: "confirmed",
-      inviteTime: db.serverDate(),
-      confirmTime: db.serverDate()
-    };
-
-    await db.collection("trips").doc(tripId).update({
-      data: {
-        passengers: _.push(entry),
-        passengerCount: (t.passengerCount || 0) + passengerCount
-      }
+        // Check for existing cancelled entry and update it, or add new
+    var passengers = t.passengers || [];
+    var existingCancel = passengers.findIndex(function(p) {
+      return p._openid === passengerOpenId && p.status === "cancelled";
     });
+    
+    if (existingCancel >= 0) {
+      // Update the existing cancelled entry
+      passengers[existingCancel].nickname = nickname || pu.nickName || "??";
+      passengers[existingCancel].avatarUrl = avatarUrl || pu.avatarUrl || "";
+      passengers[existingCancel].phone = phone || pu.phone || "";
+      passengers[existingCancel].passengerCount = passengerCount;
+      passengers[existingCancel].status = "invited";
+      passengers[existingCancel].inviteTime = db.serverDate();
+      
+      await db.collection("trips").doc(tripId).update({
+        data: { passengers: passengers }
+      });
+    } else {
+      // Add new passenger entry
+      var entry = {
+        _openid: passengerOpenId,
+        nickname: nickname || pu.nickName || "??",
+        avatarUrl: avatarUrl || pu.avatarUrl || "",
+        phone: phone || pu.phone || "",
+        passengerCount: passengerCount,
+        status: "invited",
+        inviteTime: db.serverDate()
+      };
+      
+      await db.collection("trips").doc(tripId).update({
+        data: {
+          passengers: _.push(entry)
+        }
+      });
+    }
 
     // Update the request status
     if (requestId) {
@@ -72,7 +91,7 @@ exports.main = async function(event, context) {
       } catch(e) {}
     }
 
-    return { code: 0, data: { status: "confirmed" } };
+    return { code: 0, data: { status: "invited" } };
   } catch (err) {
     return { code: 4001, message: err.message };
   }

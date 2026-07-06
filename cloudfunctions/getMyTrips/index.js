@@ -30,7 +30,16 @@ exports.main = async function(event, context) {
       var myRole = t._openid === OPENID ? "driver" : "passenger";
       var myStatus = "confirmed";
       if (myRole === "passenger") {
-        var me = (t.passengers || []).find(function(p) { return p._openid === OPENID; });
+        // Find most recent active passenger entry (skip cancelled)
+        var myEntries = (t.passengers || []).filter(function(p) { return p._openid === OPENID; });
+        var activeEntry = null;
+        for (var i = myEntries.length - 1; i >= 0; i--) {
+          if (myEntries[i].status !== "cancelled") {
+            activeEntry = myEntries[i];
+            break;
+          }
+        }
+        var me = activeEntry || (myEntries.length > 0 ? myEntries[myEntries.length - 1] : null);
         myStatus = me ? me.status : "unknown";
       }
       return {

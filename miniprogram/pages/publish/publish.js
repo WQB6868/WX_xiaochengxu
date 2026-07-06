@@ -188,6 +188,7 @@ Page({
         fromCity: form.fromCity,
         toCity: form.toCity,
         departDate: form.departDate,
+        departTime: form.departTime || "",
         passengers: parseInt(form.passengers) || 1,
         contactPhone: form.requestPhone || "",
         remarks: form.remarks || "",
@@ -205,6 +206,7 @@ Page({
       api.callFunctionSilent("publishRequest", {
         fromCity: form.fromCity, toCity: form.toCity,
         departDate: form.departDate || undefined,
+        departTime: form.departTime || undefined,
         passengers: form.passengers, contactPhone: form.requestPhone,
         remarks: form.remarks
       }).then(function() {

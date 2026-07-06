@@ -11,7 +11,7 @@ Page({
     var that = this; var form = this.data.form;
     if (!form.brand || !form.model || !form.plateNumber) { wx.showToast({ title: "请填写完整信息", icon: "none" }); return; }
     wx.showLoading({ title: "保存中...", mask: true });
-    wx.cloud.database().collection("vehicles").add({ data: { _openid: getApp().globalData.openid, brand: form.brand, model: form.model, color: form.color || "", plateNumber: form.plateNumber, seats: parseInt(form.seats) || 4, photos: [], isDefault: that.data.vehicles.length === 0, status: "active", createTime: wx.cloud.database().serverDate(), updateTime: wx.cloud.database().serverDate() } }).then(function() { wx.hideLoading(); wx.showToast({ title: "添加成功", icon: "success" }); that.setData({ form: { brand: "", model: "", color: "", seats: 4, plateNumber: "" } }); that.loadVehicles(); }).catch(function() { wx.hideLoading(); wx.showToast({ title: "添加失败", icon: "none" }); });
+    wx.cloud.callFunction({ name: "addVehicle", data: { brand: form.brand, model: form.model, color: form.color || "", plateNumber: form.plateNumber, seats: parseInt(form.seats) || 4 } }).then(function() { wx.hideLoading(); wx.showToast({ title: "添加成功", icon: "success" }); that.setData({ form: { brand: "", model: "", color: "", seats: 4, plateNumber: "" } }); that.loadVehicles(); }).catch(function(err) { wx.hideLoading(); wx.showToast({ title: (err && err.errMsg) || "添加失败", icon: "none" }); });
   },
   selectVehicle: function(e) { if (!this.data.selectMode) return; var item = e.currentTarget.dataset.item; var ec = this.getOpenerEventChannel(); if (ec) ec.emit("acceptData", item); wx.navigateBack(); },
   setDefault: function(e) {

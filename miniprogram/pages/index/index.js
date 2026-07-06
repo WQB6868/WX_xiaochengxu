@@ -191,7 +191,7 @@ Page({
       });
       var reqList = (reqData.list || []).map(function(item) {
         item._type = "request";
-        item._dateDisplay = item.departDate ? that.formatDate(item.departDate) : "日期待定";
+        item._dateDisplay = item.departDate ? that.formatDate(item.departDate) + " " + (item.departTime || "") : (item.departTime || "日期待定");
         item._fromCity = item.fromCity;
         item._toCity = item.toCity;
         item._passengers = item.passengers || 1;

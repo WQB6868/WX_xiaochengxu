@@ -109,8 +109,7 @@
   </view>
 </view>
     <view wx:for="{{tripList}}" wx:key="_id">
-      <block wx:if="{{searchTab === 'all' || searchTab === 'trip'}}">
-      <view class="inline-card" wx:if="{{item._type == 'trip'}}" data-id="{{item._id}}" bind:tap="goDetail">
+      <view class="inline-card" wx:if="{{(searchTab === 'all' || searchTab === 'trip') && item._type == 'trip'}}" data-id="{{item._id}}" bind:tap="goDetail">
         <view class="card-row route-row">
           <text class="city-from" wx:if="{{item.from && item.from.city}}">{{item.from.city}}</text>
           <text class="city-from" wx:elif="{{item.from && item.from.province}}">{{item.from.province}}</text>
@@ -131,10 +130,8 @@
           <text class="seats-text">剩余 {{item.seats || 0}} 座</text>
         </view>
       </view>
-      </block>
       <!-- 乘客请求卡片 -->
-      <block wx:elif="{{searchTab === 'all' || searchTab === 'request'}}">
-      <view class="inline-card request-card" wx:if="{{item._type == 'request'}}" data-id="{{item._id}}" bind:tap="goPassengerDetail">
+      <view class="inline-card request-card" wx:elif="{{(searchTab === 'all' || searchTab === 'request') && item._type == 'request'}}" data-id="{{item._id}}" bind:tap="goPassengerDetail">
         <view class="card-badge">🙋 乘客</view>
         <view class="card-row route-row">
           <text class="city-from">{{item._fromCity}}</text>
@@ -148,7 +145,6 @@
           <text class="seats-text">👥 {{item._passengers}}人 求同行</text>
         </view>
       </view>
-      </block>
     </view>
     <loading-more loading="{{loadingMore}}" hasMore="{{hasMore}}" />
   </view>

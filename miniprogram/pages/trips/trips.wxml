@@ -24,7 +24,11 @@
       <block wx:if="{{item._type == 'request'}}">
         <view class="trip-header">
           <text class="trip-route">{{item.fromCity}} → {{item.toCity}}</text>
-          <text class="trip-status status-active">待确认</text>
+          <text wx:if="{{item.status === 'active'}}" class="trip-status status-active">待确认</text>
+          <text wx:elif="{{item.status === 'invited'}}" class="trip-status status-invited">已邀请</text>
+          <text wx:elif="{{item.status === 'confirmed'}}" class="trip-status status-confirmed">已确认</text>
+          <text wx:elif="{{item.status === 'cancelled'}}" class="trip-status status-cancelled">已取消</text>
+          <text wx:else class="trip-status status-active">待确认</text>
         </view>
         <view class="trip-date-time">
           <text>📅 {{item._dateDisplay}}</text>
@@ -32,6 +36,9 @@
         <view class="trip-seats">
           <text>👥 {{item.passengers}}人 求同行</text>
           <text wx:if="{{item.contactPhone}}" class="trip-phone">☎ {{item.contactPhone}}</text>
+        </view>
+        <view class="trip-actions">
+          <button class="btn-delete" catch:tap="deleteRequest" data-id="{{item._id}}">删除</button>
         </view>
       </block>
       <!-- 车源卡片 -->
@@ -41,6 +48,10 @@
             <text class="trip-route">{{item.from.city}} → {{item.to.city}}</text>
             <text class="trip-status status-{{item.status}}">{{statusText(item.status)}}</text>
           </view>
+          <view wx:if="{{item.myRole === 'passenger'}}" class="trip-my-status">
+            <text class="my-status-tag status-{{item.myStatus}}">{{myStatusText(item.myStatus)}}</text>
+          </view>
+
           <view class="trip-date-time">
             <text>📅 {{item._dateDisplay}}</text>
           </view>
@@ -48,6 +59,13 @@
             <text>🪑 剩余 {{item.remainingSeats}} 座</text>
             <text class="trip-price">{{formatPrice(item.price)}}</text>
           </view>
+        </view>
+        <view wx:if="{{item.myRole === 'passenger' && item.myStatus === 'invited'}}" class="trip-actions">
+          <button class="btn-confirm" catch:tap="confirmInvite" data-id="{{item._id}}">确认同行</button>
+          <button class="btn-reject" catch:tap="cancelApplication" data-id="{{item._id}}">拒绝</button>
+        </view>
+        <view wx:elif="{{item.myRole === 'passenger' && item.myStatus === 'confirmed'}}" class="trip-actions">
+          <button class="btn-cancel" catch:tap="cancelApplication" data-id="{{item._id}}">取消申请</button>
         </view>
       </block>
     </view>

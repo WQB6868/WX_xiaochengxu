@@ -21,13 +21,13 @@ Page({
         var db = wx.cloud.database();
         var openid = getApp().globalData.openid;
         if (!openid) { return Promise.resolve({ list: [], total: 0, hasMore: false }); }
-        return db.collection("requests").where({ _openid: openid, status: "active" })
+        return db.collection("requests").where({ _openid: openid, status: db.command.neq("cancelled") })
           .orderBy("createTime", "desc")
           .skip((page - 1) * 20).limit(20)
           .get().then(function(res) {
             var list = (res.data || []).map(function(r) {
               r._type = "request";
-              r._dateDisplay = that.formatDate(r.departDate);
+              r._dateDisplay = that.formatDate(r.departDate) + (r.departTime ? " " + r.departTime : "");
               return r;
             });
             return { list: list, total: list.length, hasMore: false };
@@ -45,6 +45,12 @@ Page({
         item._dateDisplay = that.formatDate(item.departDate) ? that.formatDate(item.departDate) + " " + (item.departTime || "") : (item.departTime || "");
         return item;
       });
+      // Filter out cancelled/rejected from passenger tab
+      if (that.data.activeTab === "passenger") {
+        list = list.filter(function(item) {
+          return item.myStatus !== "cancelled" && item.myStatus !== "rejected";
+        });
+      }
       if (refresh) { that.setData({ tripList: list, page: page, hasMore: data.hasMore, initialLoading: false }); }
       else { that.setData({ tripList: that.data.tripList.concat(list), page: page, hasMore: data.hasMore }); }
       wx.stopPullDownRefresh();
@@ -61,5 +67,81 @@ Page({
       if (isNaN(date.getTime())) return "";
       return (date.getMonth() + 1) + "月" + date.getDate() + "日";
     } catch(e) { return ""; }
+  },
+    deleteRequest: function(e) {
+    var that = this;
+    var requestId = e.currentTarget.dataset.id;
+    wx.showModal({
+      title: '确认删除',
+      content: '确定要删除这条求车信息吗？',
+      success: function(res) {
+        if (res.confirm) {
+          wx.showLoading({ title: '删除中...' });
+          wx.cloud.callFunction({
+            name: 'deleteRequest',
+            data: { requestId: requestId }
+          }).then(function(res) {
+            wx.hideLoading();
+            var result = res.result || {};
+            if (result.code === 0) {
+              wx.showToast({ title: '已删除', icon: 'success' });
+              that.loadTrips(true);
+            } else {
+              wx.showToast({ title: result.message || '删除失败', icon: 'none' });
+            }
+          }).catch(function(err) {
+            wx.hideLoading();
+            console.error('deleteRequest error:', err);
+            wx.showToast({ title: '删除失败', icon: 'none' });
+          });
+        }
+      }
+    });
+  },
+    confirmInvite: function(e) {
+    var that = this;
+    var id = e.currentTarget.dataset.id;
+    wx.showModal({
+      title: '确认同行',
+      content: '确认与车主同行吗？',
+      success: function(res) {
+        if (res.confirm) {
+          wx.showLoading({ title: '确认中...' });
+          api.callFunction('confirmRide', { tripId: id }).then(function(data) {
+            wx.hideLoading();
+            wx.showToast({ title: '已确认', icon: 'success' });
+            that.loadTrips(true);
+          }).catch(function(err) {
+            wx.hideLoading();
+            wx.showToast({ title: (err && err.message) || '网络错误', icon: 'none' });
+          });
+        }
+      }
+    });
+  },
+    cancelApplication: function(e) {
+    var that = this;
+    var id = e.currentTarget.dataset.id;
+    wx.showModal({
+      title: '确认取消',
+      content: '确定取消这个行程的申请吗？',
+      success: function(res) {
+        if (res.confirm) {
+          wx.showLoading({ title: '取消中...' });
+          api.callFunction('cancelTrip', { tripId: id }).then(function(data) {
+            wx.hideLoading();
+            wx.showToast({ title: '已取消', icon: 'success' });
+            that.loadTrips(true);
+          }).catch(function(err) {
+            wx.hideLoading();
+            wx.showToast({ title: (err && err.message) || '网络错误', icon: 'none' });
+          });
+        }
+      }
+    });
+  },
+  requestStatusText: function(s) {
+    var map = { "active": "待确认", "invited": "已邀请", "confirmed": "已确认", "cancelled": "已取消" };
+    return map[s] || s;
   },
 });

@@ -26,22 +26,36 @@ exports.main = async function(event, context) {
           status: "recruiting"
         }
       });
-      await db.collection("applications").where({
-        tripId: tripId,
-        passengerOpenId: OPENID
-      }).update({
-        data: { status: "cancelled_by_passenger", updateTime: db.serverDate() }
-      });
+      // Restore request status to active so it can be searched again
+      try {
+        await db.collection("requests").where({
+          _openid: OPENID,
+          status: _.in(["invited", "confirmed"]),
+          invitedTripId: tripId
+        }).update({
+          data: { status: "active", invitedTripId: "", updateTime: db.serverDate() }
+        });
+      } catch(e) {}
+      try {
+        await db.collection("applications").where({
+          tripId: tripId,
+          passengerOpenId: OPENID
+        }).update({
+          data: { status: "cancelled_by_passenger", updateTime: db.serverDate() }
+        });
+      } catch(e) {}
     } else {
       // Driver cancels entire trip
       await db.collection("trips").doc(tripId).update({
         data: { status: "cancelled", updateTime: db.serverDate() }
       });
-      await db.collection("applications").where({
-        tripId: tripId
-      }).update({
-        data: { status: "cancelled_by_driver", updateTime: db.serverDate() }
-      });
+      try {
+        await db.collection("applications").where({
+          tripId: tripId
+        }).update({
+          data: { status: "cancelled_by_driver", updateTime: db.serverDate() }
+        });
+      } catch(e) {}
     }
     return { code: 0, data: { status: "cancelled" } };
   } catch (err) {

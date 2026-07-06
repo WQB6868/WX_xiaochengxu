@@ -19,6 +19,7 @@ exports.main = async function(event, context) {
         fromCity: r.fromCity,
         toCity: r.toCity,
         departDate: r.departDate,
+        departTime: r.departTime || "",
         passengers: r.passengers,
         contactPhone: r.contactPhone,
         remarks: r.remarks,

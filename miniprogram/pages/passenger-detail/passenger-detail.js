@@ -48,7 +48,7 @@ Page({
         try {
           var d = new Date(reqData.departDate);
           if (!isNaN(d.getTime())) {
-            dateDisplay = (d.getMonth()+1) + "月" + d.getDate() + "日";
+            dateDisplay = (d.getMonth()+1) + "月" + d.getDate() + "日" + (reqData.departTime ? " " + reqData.departTime : "");
           }
         } catch(e) {}
       }

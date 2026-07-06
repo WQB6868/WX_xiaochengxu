@@ -37,24 +37,28 @@ exports.main = async function(event, context) {
           updateData.status = "full";
         }
         await db.collection("trips").doc(tripId).update({ data: updateData });
-        await db.collection("applications").where({
-          tripId: tripId,
-          passengerOpenId: passengerOpenId
-        }).update({
-          data: { status: "confirmed", updateTime: db.serverDate() }
-        });
+        try {
+          await db.collection("applications").where({
+            tripId: tripId,
+            passengerOpenId: passengerOpenId
+          }).update({
+            data: { status: "confirmed", updateTime: db.serverDate() }
+          });
+        } catch(e) {}
       } else {
         passengers[idx].status = "rejected";
         passengers[idx].reason = event.rejectReason || "";
         await db.collection("trips").doc(tripId).update({
           data: { passengers: passengers }
         });
-        await db.collection("applications").where({
-          tripId: tripId,
-          passengerOpenId: passengerOpenId
-        }).update({
-          data: { status: "rejected", rejectReason: event.rejectReason || "", updateTime: db.serverDate() }
-        });
+        try {
+          await db.collection("applications").where({
+            tripId: tripId,
+            passengerOpenId: passengerOpenId
+          }).update({
+            data: { status: "rejected", rejectReason: event.rejectReason || "", updateTime: db.serverDate() }
+          });
+        } catch(e) {}
       }
       return { code: 0, data: { status: action === "confirm" ? "confirmed" : "rejected" } };
     }
@@ -91,6 +95,17 @@ exports.main = async function(event, context) {
     await db.collection("trips").doc(tripId).update({
       data: { passengers: passengers, passengerCount: newCount }
     });
+
+    // Update the request status if this passenger was invited from a request
+    try {
+      await db.collection("requests").where({
+        _openid: OPENID,
+        status: "invited",
+        invitedTripId: tripId
+      }).update({
+        data: { status: "confirmed", updateTime: db.serverDate() }
+      });
+    } catch(e) {}
 
     return { code: 0, data: { status: "confirmed" } };
   } catch (err) {

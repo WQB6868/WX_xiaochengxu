@@ -10,7 +10,7 @@ exports.main = async function(event, context) {
     var user = await db.collection("users").doc(t._openid).get();
     var driver = user.data || {};
     var passengerList = (t.passengers || []).filter(function(p) {
-      return p.status === "confirmed" || p.status === "pending";
+      return p.status === "confirmed" || p.status === "pending" || p.status === "invited";
     }).map(function(p) {
       return {
         openid: p._openid,

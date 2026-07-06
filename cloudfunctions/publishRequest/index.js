@@ -13,6 +13,7 @@ exports.main = async function(event, context) {
       fromCity: data.fromCity,
       toCity: data.toCity,
       departDate: data.departDate ? new Date(data.departDate) : null,
+      departTime: data.departTime || "",
       passengers: parseInt(data.passengers) || 1,
       contactPhone: data.contactPhone || "",
       remarks: data.remarks || "",

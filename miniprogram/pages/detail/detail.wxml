@@ -131,16 +131,17 @@
                 {{item.status === 'rejected' ? '❌ 已拒绝' : ''}}
               </text>
             </view>
-            <view class="applicant-actions" wx:if="{{item.status === 'pending'}}">
-              <button class="btn-confirm" bind:tap="confirmPassenger" data-openid="{{item.openid}}">确认</button>
-              <button class="btn-reject" bind:tap="rejectPassenger" data-openid="{{item.openid}}">拒绝</button>
-            </view>
+            <view class="applicant-actions">
+                <button wx:if="{{item.status === 'pending'}}" class="btn-confirm" bind:tap="confirmPassenger" data-openid="{{item.openid}}">确认</button>
+                <button wx:if="{{item.status === 'pending'}}" class="btn-reject" bind:tap="rejectPassenger" data-openid="{{item.openid}}">拒绝</button>
+                <button wx:if="{{item.phone}}" class="btn-call" bind:tap="callPassenger" data-phone="{{item.phone}}">拨打</button>
+              </view>
           </view>
         </view>
         <view class="applicants-empty" wx:elif="{{showApplicants && (!trip.passengers || trip.passengers.length === 0)}}">暂无同行乘客</view>
       </view>
 
-      <button wx:if="{{isOwner && trip.status === 'recruiting'}}" class="btn-primary" bind:tap="startTrip">🚀 确认发车</button>
+      <button wx:if="{{isOwner && (trip.status === 'recruiting' || trip.status === 'full')}}" class="btn-primary" bind:tap="startTrip">🚀 确认发车</button>
       <button wx:if="{{isOwner}}" class="btn-danger" bind:tap="deleteTrip">🗑 删除行程</button>
     </view>
   </block>

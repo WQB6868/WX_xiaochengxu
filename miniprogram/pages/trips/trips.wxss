@@ -24,3 +24,25 @@
 .trip-seats { display: flex; justify-content: space-between; align-items: center; font-size: 26rpx; color: var(--text-secondary); }
 .trip-price { color: var(--color-orange); font-weight: 500; }
 .trip-seats .my-status { font-size: 22rpx; padding: 2rpx 12rpx; border-radius: var(--radius-sm); }
+
+/* 操作按钮容器 */
+.trip-actions { padding: 10rpx 0 0 0; border-top: 1rpx solid var(--border-color, #eee); margin-top: 10rpx; display: flex; justify-content: flex-end; }
+.btn-delete { font-size: 24rpx; padding: 6rpx 24rpx; border-radius: var(--radius-sm, 8rpx); background: #fee; color: #e74c3c; border: none; min-width: 0; }
+.btn-confirm { font-size: 24rpx; padding: 6rpx 24rpx; border-radius: var(--radius-sm, 8rpx); background: var(--color-primary-light, #e8f5e9); color: var(--color-primary, #4caf50); border: none; min-width: 0; }
+
+/* 取消/拒绝按钮 */
+.btn-cancel { font-size: 24rpx; padding: 6rpx 24rpx; border-radius: var(--radius-sm, 8rpx); background: #fee; color: #e74c3c; border: none; min-width: 0; margin-left: 10rpx; }
+.btn-reject { font-size: 24rpx; padding: 6rpx 24rpx; border-radius: var(--radius-sm, 8rpx); background: #fee; color: #e74c3c; border: none; min-width: 0; margin-left: 10rpx; }
+/* 乘客本人状态标签 */
+.trip-my-status { margin-bottom: 8rpx; }
+.my-status-tag { font-size: 20rpx; padding: 2rpx 12rpx; border-radius: var(--radius-sm, 6rpx); display: inline-block; }
+.my-status-tag.status-pending { color: var(--color-orange, #ff9800); background: #fef3e7; }
+.my-status-tag.status-invited { color: var(--color-blue, #2196f3); background: #e3f2fd; }
+.my-status-tag.status-confirmed { color: var(--color-primary, #4caf50); background: var(--color-primary-light, #e8f5e9); }
+.my-status-tag.status-cancelled { color: var(--text-hint, #999); background: #f0f0f0; }
+.my-status-tag.status-rejected { color: var(--color-warning, #f44336); background: #fde8e8; }
+/* 求车信息状态 */
+.status-active { color: var(--color-primary, #4caf50); background: var(--color-primary-light, #e8f5e9); }
+.status-invited { color: var(--color-blue, #2196f3); background: #e3f2fd; }
+.status-confirmed { color: var(--color-primary, #4caf50); background: var(--color-primary-light, #e8f5e9); }
+.status-cancelled { color: var(--text-hint, #999); background: #f0f0f0; }
