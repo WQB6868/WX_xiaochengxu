@@ -1,7 +1,6 @@
-﻿const cloud = require("wx-server-sdk");
+const cloud = require("wx-server-sdk");
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const https = require("https");
-const http = require("http");
 
 function fetchUrl(url) {
   return new Promise(function(resolve, reject) {
@@ -19,29 +18,7 @@ function fetchUrl(url) {
   });
 }
 
-function fetchHtml(url) {
-  return new Promise(function(resolve, reject) {
-    var client = url.indexOf('https://') === 0 ? https : http;
-    client.get(url, { timeout: 10000 }, function(res) {
-      var chunks = [];
-      res.on("data", function(chunk) { chunks.push(chunk); });
-      res.on("end", function() {
-        var buffer = Buffer.concat(chunks);
-        try {
-          var decoder = new TextDecoder('gbk');
-          resolve(decoder.decode(buffer));
-        } catch(e) {
-          reject(e);
-        }
-      });
-    }).on("error", reject).on("timeout", function() {
-      this.destroy();
-      reject(new Error("timeout"));
-    });
-  });
-}
-
-// ============== 数据源1: tmini.net API（主数据源） ==============
+// ============== 数据源 1: tmini.net API（主数据源） ==============
 async function sourceTmini(province) {
   var json = await fetchUrl("https://tmini.net/api/oil-prices?province=" + encodeURIComponent(province));
   if (json.code !== 0 || !json.data || !json.data.prices) return null;
@@ -56,7 +33,7 @@ async function sourceTmini(province) {
   };
 }
 
-// ============== 数据源2: 52vmy API（备用） ==============
+// ============== 数据源 2: 52vmy API（备用） ==============
 async function source52vmy(province) {
   var json = await fetchUrl("https://api.52vmy.cn/api/query/oil");
   if (json.code !== 200 || !json.data) return null;
@@ -72,98 +49,6 @@ async function source52vmy(province) {
       };
     }
   }
-  return null;
-}
-
-// ============== 数据源3: huangjinjiage.cn 网页爬虫（备用2） ==============
-var PROVINCE_MAP = {
-  '北京':'北京','上海':'上海','天津':'天津','重庆':'重庆',
-  '广东':'广东','山东':'山东','江苏':'江苏','浙江':'浙江',
-  '福建':'福建','安徽':'安徽','江西':'江西','湖北':'湖北',
-  '湖南':'湖南','河南':'河南','河北':'河北','山西':'山西',
-  '四川':'四川','贵州':'贵州','云南':'云南','广西':'广西',
-  '海南':'海南','陕西':'陕西','甘肃':'甘肃','青海':'青海',
-  '宁夏':'宁夏','吉林':'吉林','辽宁':'辽宁','黑龙江':'黑龙江',
-  '内蒙古':'内蒙古','西藏':'西藏','新疆':'新疆'
-};
-
-var PAGE_PROVINCE_MAP = {
-  '北京':'北京','山东':'山东','上海':'上海','江苏':'江苏',
-  '安徽':'安徽','福建':'福建','江西':'江西','湖北':'湖北',
-  '广东':'广东','湖南':'湖南','广西':'广西','云南':'云南',
-  '贵州':'贵州','海南':'海南','重庆':'重庆','四川':'四川',
-  '天津':'天津','河北':'河北','山西':'山西','河南':'河南',
-  '浙江':'浙江','吉林':'吉林','甘肃':'甘肃','青海':'青海',
-  '宁夏':'宁夏','陕西':'陕西','辽宁':'辽宁','黑龙江':'黑龙江',
-  '内蒙古':'内蒙古','拉萨':'西藏','乌鲁木齐':'新疆'
-};
-
-async function sourceHuangjin(province) {
-  var url = "http://www.huangjinjiage.cn/wiki/202207/0129537.html";
-  var html;
-  try {
-    html = await fetchHtml(url);
-  } catch(e) {
-    return null;
-  }
-
-  // 提取日期：从 "2026年07月06日今日油价" 中提取
-  var dateMatch = html.match(/(\d{4})年(\d{1,2})月(\d{1,2})日/);
-  var timeStr = getTodayDate();
-  if (dateMatch) {
-    timeStr = dateMatch[1] + '-' + dateMatch[2].padStart(2,'0') + '-' + dateMatch[3].padStart(2,'0');
-  }
-
-  // 查找全国油价表格：第二个 class="bx" 的 table
-  var tableStart = html.indexOf('<table class="bx"');
-  if (tableStart === -1) return null;
-  var secondTable = html.indexOf('<table class="bx"', tableStart + 10);
-  if (secondTable === -1) return null;
-  var tbodyStart = html.indexOf('<tbody>', secondTable);
-  if (tbodyStart === -1) return null;
-  var tbodyEnd = html.indexOf('</tbody>', tbodyStart);
-  if (tbodyEnd === -1) return null;
-  var tbodyContent = html.substring(tbodyStart, tbodyEnd);
-
-  // 映射省份名称
-  var pageName = PAGE_PROVINCE_MAP[province];
-  if (!pageName) return null;
-
-  // 逐行解析
-  var rows = tbodyContent.split('<tr>');
-  for (var i = 0; i < rows.length; i++) {
-    // 查找省份名称链接，如 <a href="...">北京油价</a> 或 <a href="...">拉萨油价</a>
-    var linkMatch = rows[i].match(/<a[^>]*>([^<]+?)油价<\/a>/);
-    if (!linkMatch) continue;
-    var cityName = linkMatch[1];
-    var mappedProvince = PAGE_PROVINCE_MAP[cityName];
-    if (!mappedProvince || mappedProvince !== province) continue;
-
-    // 提取价格
-    var cells = rows[i].match(/<td[^>]*>([\d.-]+|—|-)<\/td>/g);
-    if (!cells || cells.length < 4) continue;
-
-    var p92 = cells[0].replace(/<[^>]+>/g, '');
-    var p95 = cells[1].replace(/<[^>]+>/g, '');
-    var p98 = cells[2].replace(/<[^>]+>/g, '');
-    var p0 = cells[3].replace(/<[^>]+>/g, '');
-
-    // 处理无效价格
-    p92 = (p92 === '-' || p92 === '—') ? '--' : p92;
-    p95 = (p95 === '-' || p95 === '—') ? '--' : p95;
-    p98 = (p98 === '-' || p98 === '—') ? '--' : p98;
-    p0 = (p0 === '-' || p0 === '—') ? '--' : p0;
-
-    return {
-      p92: p92,
-      p95: p95,
-      p98: p98,
-      p0: p0,
-      time: timeStr,
-      source: "huangjin"
-    };
-  }
-
   return null;
 }
 
@@ -222,14 +107,6 @@ exports.main = async function(event, context) {
     }
   } catch(e) {}
 
-  // 再尝试 huangjinjiage.cn 网页爬虫
-  try {
-    var data = await sourceHuangjin(province);
-    if (data && data.p92 !== "--") {
-      return { code: 0, data: data };
-    }
-  } catch(e) {}
-
   // 使用兜底数据
   var fallback = FALLBACK[province];
   if (fallback) {
@@ -239,7 +116,7 @@ exports.main = async function(event, context) {
         p92: fallback.p92, p95: fallback.p95,
         p98: fallback.p98 || "--", p0: fallback.p0,
         time: getTodayDate(),
-        source: "参考价"
+        source: "参考"
       }
     };
   }
