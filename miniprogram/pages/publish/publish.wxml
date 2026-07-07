@@ -1,4 +1,4 @@
-<scroll-view class="page-container" scroll-y enhanced>
+﻿<scroll-view class="page-container" scroll-y enhanced>
   <!-- 模式切换：发布车源 / 求车 -->
   <view class="mode-tabs">
     <view class="mode-tab {{mode === 'publish' ? 'active' : ''}}" bind:tap="switchMode" data-mode="publish">
@@ -122,12 +122,22 @@
       <text class="form-label">🚩 我从</text>
       <input class="form-input" placeholder="输入出发城市" value="{{form.fromCity}}"
         bindinput="onInput" data-field="fromCity" />
+      <view class="location-detail" wx:if="{{form.fromCity}}">
+        <text class="detail-label">详细地址</text>
+        <input class="form-input" placeholder="乡镇/小区等"
+          value="{{form.fromDetail}}" bindinput="onInput" data-field="fromDetail" />
+      </view>
     </view>
 
     <view class="form-section">
       <text class="form-label">🏁 我要去</text>
       <input class="form-input" placeholder="输入目的城市" value="{{form.toCity}}"
         bindinput="onInput" data-field="toCity" />
+      <view class="location-detail" wx:if="{{form.toCity}}">
+        <text class="detail-label">详细地址</text>
+        <input class="form-input" placeholder="乡镇/小区等"
+          value="{{form.toDetail}}" bindinput="onInput" data-field="toDetail" />
+      </view>
     </view>
 
     <view class="form-row">

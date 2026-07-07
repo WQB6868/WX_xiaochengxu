@@ -131,8 +131,8 @@ Page({
     var idx = parseInt(e.currentTarget.dataset.idx);
     var route = this.data.hotRoutes[idx];
     this.setData({
-      activeRoute: idx, activeDate: -1,
-      searchParams: { fromCity: route.from, toCity: route.to, date: "" }
+      activeRoute: idx,
+      "searchParams.fromCity": route.from, "searchParams.toCity": route.to
     });
   },
 
@@ -271,7 +271,8 @@ Page({
       routes.unshift({ from: from, to: to });
       if (routes.length > 10) routes = routes.slice(0, 10);
       wx.setStorageSync("searchRoutes", routes);
-      this.setData({ hotRoutes: routes });
+      var newActive = this.data.activeRoute >= 0 ? 0 : -1;
+      this.setData({ hotRoutes: routes, activeRoute: newActive });
     } catch(e) {}
   },
 

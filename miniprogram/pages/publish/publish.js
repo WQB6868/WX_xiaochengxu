@@ -213,6 +213,8 @@ Page({
         _openid: openid,
         fromCity: form.fromCity,
         toCity: form.toCity,
+        fromDetail: form.fromDetail || "",
+        toDetail: form.toDetail || "",
         departDate: form.departDate,
         departTime: form.departTime || "",
         passengers: parseInt(form.passengers) || 1,
@@ -231,6 +233,8 @@ Page({
       wx.hideLoading();
       api.callFunctionSilent("publishRequest", {
         fromCity: form.fromCity, toCity: form.toCity,
+        fromDetail: form.fromDetail || "",
+        toDetail: form.toDetail || "",
         departDate: form.departDate || undefined,
         departTime: form.departTime || undefined,
         passengers: form.passengers, contactPhone: form.requestPhone,

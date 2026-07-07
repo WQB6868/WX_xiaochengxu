@@ -1,4 +1,4 @@
-<view class="page-container">
+﻿<view class="page-container">
   <view class="loading-container" wx:if="{{loading}}">
     <view class="loading-spinner"></view>
   </view>
@@ -142,7 +142,25 @@
       </view>
 
       <button wx:if="{{isOwner && (trip.status === 'recruiting' || trip.status === 'full')}}" class="btn-primary" bind:tap="startTrip">🚀 确认发车</button>
+      <button wx:if="{{isOwner && (trip.status === 'recruiting' || trip.status === 'full')}}" class="btn-secondary" bind:tap="editSeats">🪑 修改座位数</button>
       <button wx:if="{{isOwner}}" class="btn-danger" bind:tap="deleteTrip">🗑 删除行程</button>
     </view>
   </block>
 </view>
+
+  <!-- 修改座位数弹窗 -->
+  <view class="modal-overlay" wx:if="{{showSeatEditor}}" bind:tap="cancelEditSeats">
+    <view class="modal-content" catch:tap="noop">
+      <text class='modal-title'>🪑 修改座位数</text>
+      <text class='modal-desc'>当前座位数：{{trip.seats}} 个</text>
+      <view class="stepper-row">
+        <view class="stepper-btn" bind:tap="seatStepper" data-delta="-1">−</view>
+        <text class="stepper-value">{{editSeatsValue}}</text>
+        <view class="stepper-btn" bind:tap="seatStepper" data-delta="1">+</view>
+      </view>
+      <view class="modal-actions">
+        <button class="btn-cancel" bind:tap="cancelEditSeats">取消</button>
+        <button class="btn-confirm-edit" bind:tap="confirmEditSeats">确认修改</button>
+      </view>
+    </view>
+  </view>

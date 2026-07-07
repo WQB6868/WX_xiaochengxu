@@ -1,4 +1,4 @@
-var api = require("../../utils/api");
+﻿var api = require("../../utils/api");
 var timeUtil = require("../../utils/time");
 
 Page({
@@ -330,6 +330,41 @@ Page({
     });
   },
 
+  // 车主：修改座位数
+  // 车主：修改座位数
+  editSeats: function() {
+    var currentSeats = (this.data.trip && this.data.trip.seats) || 2;
+    this.setData({ showSeatEditor: true, editSeatsValue: currentSeats });
+  },
+
+  seatStepper: function(e) {
+    var delta = parseInt(e.currentTarget.dataset.delta);
+    var newVal = this.data.editSeatsValue + delta;
+    if (newVal < 1) newVal = 1;
+    if (newVal > 20) newVal = 20;
+    this.setData({ editSeatsValue: newVal });
+  },
+
+  confirmEditSeats: function() {
+    var that = this;
+    var newSeats = this.data.editSeatsValue;
+    wx.showLoading({ title: "更新中...", mask: true });
+    wx.cloud.database().collection("trips").doc(that.data.tripId).update({
+      data: { seats: newSeats }
+    }).then(function() {
+      wx.hideLoading();
+      wx.showToast({ title: "座位数已更新", icon: "success" });
+      that.setData({ showSeatEditor: false });
+      that.loadDetail();
+    }).catch(function() {
+      wx.hideLoading();
+      wx.showToast({ title: "更新失败", icon: "none" });
+    });
+  },
+
+  cancelEditSeats: function() {
+    this.setData({ showSeatEditor: false });
+  },
   rateTrip: function() {
     wx.showToast({ title: "评价功能开发中", icon: "none" });
   },
