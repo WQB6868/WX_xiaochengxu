@@ -1,6 +1,7 @@
-const cloud = require("wx-server-sdk");
+﻿const cloud = require("wx-server-sdk");
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const https = require("https");
+const http = require("http");
 
 function fetchUrl(url) {
   return new Promise(function(resolve, reject) {
@@ -18,7 +19,102 @@ function fetchUrl(url) {
   });
 }
 
-// ============== 数据源 1: tmini.net API（主数据源） ==============
+function fetchHtml(url) {
+  return new Promise(function(resolve, reject) {
+    var client = url.indexOf("https://") === 0 ? https : http;
+    client.get(url, { timeout: 10000 }, function(res) {
+      var chunks = [];
+      res.on("data", function(chunk) { chunks.push(chunk); });
+      res.on("end", function() {
+        var buffer = Buffer.concat(chunks);
+        try {
+          var decoder = new TextDecoder("gbk");
+          resolve(decoder.decode(buffer));
+        } catch(e) {
+          reject(e);
+        }
+      });
+    }).on("error", reject).on("timeout", function() {
+      this.destroy();
+      reject(new Error("timeout"));
+    });
+  });
+}
+
+// ============== 省份名称映射（页面名称 → 标准名称） ==============
+var PAGE_PROVINCE_MAP = {
+  "北京":"北京","山东":"山东","上海":"上海","江苏":"江苏",
+  "安徽":"安徽","福建":"福建","江西":"江西","湖北":"湖北",
+  "广东":"广东","湖南":"湖南","广西":"广西","云南":"云南",
+  "贵州":"贵州","海南":"海南","重庆":"重庆","四川":"四川",
+  "天津":"天津","河北":"河北","山西":"山西","河南":"河南",
+  "浙江":"浙江","吉林":"吉林","甘肃":"甘肃","青海":"青海",
+  "宁夏":"宁夏","陕西":"陕西","辽宁":"辽宁","黑龙江":"黑龙江",
+  "内蒙古":"内蒙古","拉萨":"西藏","乌鲁木齐":"新疆"
+};
+
+// ============== 数据源1: huangjinjiage.cn 网页爬虫（首选） ==============
+async function sourceHuangjin(province) {
+  var html;
+  try {
+    html = await fetchHtml("http://www.huangjinjiage.cn/wiki/202207/0129537.html");
+  } catch(e) {
+    return null;
+  }
+
+  // 提取日期
+  var dateMatch = html.match(/(\d{4})年(\d{1,2})月(\d{1,2})日/);
+  var timeStr = getTodayDate();
+  if (dateMatch) {
+    timeStr = dateMatch[1] + "-" + dateMatch[2].padStart(2,"0") + "-" + dateMatch[3].padStart(2,"0");
+  }
+
+  // 定位全国油价表格（第二个 class="bx" 的 table）
+  var firstTable = html.indexOf('<table class="bx"');
+  if (firstTable === -1) return null;
+  var secondTable = html.indexOf('<table class="bx"', firstTable + 10);
+  if (secondTable === -1) return null;
+
+  var tbodyStart = html.indexOf("<tbody>", secondTable);
+  var tbodyEnd = html.indexOf("</tbody>", tbodyStart);
+  if (tbodyStart === -1 || tbodyEnd === -1) return null;
+
+  var tbodyContent = html.substring(tbodyStart + 7, tbodyEnd);
+  var rows = tbodyContent.split("<tr>");
+
+  // 查找匹配省份
+  var pageName = PAGE_PROVINCE_MAP[province];
+  if (!pageName) return null;
+
+  for (var i = 0; i < rows.length; i++) {
+    var linkMatch = rows[i].match(/<a[^>]*>([^<]+?)油价<\/a>/);
+    if (!linkMatch) continue;
+    var cityName = linkMatch[1];
+    var mappedProvince = PAGE_PROVINCE_MAP[cityName];
+    if (!mappedProvince || mappedProvince !== province) continue;
+
+    var cells = rows[i].match(/<td[^>]*>([^<]+)<\/td>/g);
+    if (!cells || cells.length < 4) continue;
+
+    var cleanValue = function(v) {
+      v = v.replace(/<[^>]+>/g, "").trim();
+      return (v === "-" || v === "—" || v === "") ? "--" : v;
+    };
+
+    return {
+      p92: cleanValue(cells[0]),
+      p95: cleanValue(cells[1]),
+      p98: cleanValue(cells[2]),
+      p0: cleanValue(cells[3]),
+      time: timeStr,
+      source: "huangjin"
+    };
+  }
+
+  return null;
+}
+
+// ============== 数据源2: tmini.net API（备用） ==============
 async function sourceTmini(province) {
   var json = await fetchUrl("https://tmini.net/api/oil-prices?province=" + encodeURIComponent(province));
   if (json.code !== 0 || !json.data || !json.data.prices) return null;
@@ -33,7 +129,7 @@ async function sourceTmini(province) {
   };
 }
 
-// ============== 数据源 2: 52vmy API（备用） ==============
+// ============== 数据源3: 52vmy API（备用2） ==============
 async function source52vmy(province) {
   var json = await fetchUrl("https://api.52vmy.cn/api/query/oil");
   if (json.code !== 200 || !json.data) return null;
@@ -91,7 +187,15 @@ var FALLBACK = {
 exports.main = async function(event, context) {
   var province = event.province || "广东";
 
-  // 先尝试 tmini API
+  // 首选：huangjinjiage.cn 网页爬虫（数据最新最全）
+  try {
+    var data = await sourceHuangjin(province);
+    if (data && data.p92 !== "--") {
+      return { code: 0, data: data };
+    }
+  } catch(e) {}
+
+  // 备用1：tmini API
   try {
     var data = await sourceTmini(province);
     if (data && data.p92 !== "--") {
@@ -99,7 +203,7 @@ exports.main = async function(event, context) {
     }
   } catch(e) {}
 
-  // 再尝试 52vmy 备用
+  // 备用2：52vmy API
   try {
     var data = await source52vmy(province);
     if (data && data.p92 !== "--") {
@@ -107,7 +211,7 @@ exports.main = async function(event, context) {
     }
   } catch(e) {}
 
-  // 使用兜底数据
+  // 最后：兜底数据
   var fallback = FALLBACK[province];
   if (fallback) {
     return {
@@ -116,7 +220,7 @@ exports.main = async function(event, context) {
         p92: fallback.p92, p95: fallback.p95,
         p98: fallback.p98 || "--", p0: fallback.p0,
         time: getTodayDate(),
-        source: "参考"
+        source: "参考价"
       }
     };
   }

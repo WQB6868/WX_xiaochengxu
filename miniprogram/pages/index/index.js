@@ -1,4 +1,4 @@
-var api = require("../../utils/api");
+﻿var api = require("../../utils/api");
 var timeUtil = require("../../utils/time");
 var constants = require("../../utils/constants");
 
@@ -8,17 +8,16 @@ var CITIES = ["北京","上海","广州","深圳","杭州","南京","武汉","�
 Page({
   data: {
     tripList: [],
+    trips: [],
+    requests: [],
+    displayList: [],
     searchParams: { fromCity: "", toCity: "", date: "" },
-    hotRoutes: [
-      { from: "北京", to: "郑州" }, { from: "上海", to: "合肥" },
-      { from: "广州", to: "长沙" }, { from: "深圳", to: "武汉" },
-      { from: "杭州", to: "南昌" }, { from: "南京", to: "徐州" }
-    ],
+    hotRoutes: [],
     dateList: [], activeRoute: -1, activeDate: -1,
     page: 1, pageSize: 20, total: 0, hasMore: false,
     loadingMore: false, initialLoading: false, searched: false, searchTab: "all",
     // 输入相关
-    showSuggest: "", filteredCities: [], inputFocus: ""
+    showSuggest: "", filteredCities: [], inputFocus: "", searchCounter: 0
   },
 
   onShow: function() {
@@ -29,6 +28,7 @@ Page({
   },
   onLoad: function() {
     this.initDateList();
+    this.loadCommonRoutes();
   },
 
   onPullDownRefresh: function() { if (this.data.searched) this.loadTrips(true); },
@@ -152,10 +152,13 @@ Page({
     if (!params.toCity) { wx.showToast({ title: "请输入目的城市", icon: "none" }); return; }
     if (!params.date) { wx.showToast({ title: "请选择日期", icon: "none" }); return; }
     this.setData({ showSuggest: "", filteredCities: [] });
+    this.setData({ searchCounter: this.data.searchCounter + 1 });
+    this.saveSearchRoute(params.fromCity, params.toCity);
     this.loadTrips(true);
   },
 
     loadTrips: function(refresh) {
+
     var that = this;
     var params = this.data.searchParams;
     if (refresh) { this.setData({ page: 1, initialLoading: true, searched: true }); }
@@ -165,48 +168,113 @@ Page({
       departDate: params.date || undefined,
       page: page, pageSize: this.data.pageSize
     };
-    var tripPromise = api.callFunction("searchTrip", searchQuery);
-    var reqPromise = new Promise(function(resolve) {
-      api.callFunctionSilent("searchRequests", searchQuery).then(function(data) {
-        resolve(data);
-      }).catch(function() {
-        try {
-          var db = wx.cloud.database();
-          var cond = { status: "active" };
-          if (params.fromCity) { cond.fromCity = db.RegExp({ regexp: params.fromCity, options: "i" }); }
-          if (params.toCity) { cond.toCity = db.RegExp({ regexp: params.toCity, options: "i" }); }
-          db.collection("requests").where(cond).orderBy("createTime", "desc").limit(20).get().then(function(res) {
-            resolve({ list: res.data || [], total: (res.data || []).length, hasMore: false });
-          }).catch(function() { resolve({ list: [], total: 0, hasMore: false }); });
-        } catch(e) { resolve({ list: [], total: 0, hasMore: false }); }
-      });
-    });
-    Promise.all([tripPromise, reqPromise]).then(function(results) {
-      var tripData = results[0];
-      var reqData = results[1];
-      var tripList = (tripData.list || []).map(function(item) {
+    var currentSearch = that.data.searchCounter;
+    var doneCount = 0;
+    var totalTasks = 2;
+
+    function tryFinish(err) {
+      doneCount++;
+      if (doneCount >= totalTasks || err) {
+        that.setData({ initialLoading: false, loadingMore: false });
+        wx.stopPullDownRefresh();
+      }
+    }
+
+    function updateList() {
+      var tab = that.data.searchTab;
+      var trips = that.data.trips || [];
+      var requests = that.data.requests || [];
+      var list;
+      var count = 0;
+      if (tab === "all") { list = trips.concat(requests); count = trips.length + requests.length; }
+      else if (tab === "trip") { list = trips; count = trips.length; }
+      else { list = requests; count = requests.length; }
+      that.setData({ displayList: list, tripList: list, total: count });
+    }
+
+
+    // 车源查询
+    api.callFunctionSilent("searchTrip", searchQuery).then(function(tripData) {
+      if (that.data.searchCounter !== currentSearch) { return; }
+      that.data.trips = (tripData.list || []).map(function(item) {
         item._type = "trip";
         item._dateDisplay = item.departDate ? that.formatDate(item.departDate) + " " + (item.departTime || "") : (item.departTime || "");
         return item;
       });
-      var reqList = (reqData.list || []).map(function(item) {
-        item._type = "request";
-        item._dateDisplay = item.departDate ? that.formatDate(item.departDate) + " " + (item.departTime || "") : (item.departTime || "日期待定");
-        item._fromCity = item.fromCity;
-        item._toCity = item.toCity;
-        item._passengers = item.passengers || 1;
-        return item;
-      });
-      var merged = tripList.concat(reqList);
-      var total = (tripData.total || 0) + (reqData.total || 0);
-      if (refresh) {
-        that.setData({ tripList: merged, total: total, page: page, hasMore: tripData.hasMore || reqData.hasMore, initialLoading: false, loadingMore: false });
-      } else {
-         that.setData({ tripList: allConcat,  page: page, hasMore: tripData.hasMore || reqData.hasMore, loadingMore: false });
+      updateList();
+      that.setData({ page: page, hasMore: tripData.hasMore || false, searched: true });
+      tryFinish();
+    }).catch(function() {
+      if (that.data.searchCounter !== currentSearch) return;
+      that.setData({ searched: true });
+      tryFinish(true);
+    });
+
+    // 乘客请求查询（直查数据库）
+    try {
+      var db = wx.cloud.database();
+      var cond = { status: "active" };
+      if (params.fromCity) {
+        var cv = [params.fromCity];
+        if (params.fromCity.indexOf("市") === -1) cv.push(params.fromCity + "市");
+        else cv.push(params.fromCity.replace("市", ""));
+        cond.fromCity = db.command.in(cv);
       }
-      wx.stopPullDownRefresh();
-    }).catch(function() { that.setData({ initialLoading: false, loadingMore: false, searched: true }); wx.stopPullDownRefresh(); });
+      if (params.toCity) {
+        var tv = [params.toCity];
+        if (params.toCity.indexOf("市") === -1) tv.push(params.toCity + "市");
+        else tv.push(params.toCity.replace("市", ""));
+        cond.toCity = db.command.in(tv);
+      }
+      if (params.departDate) {
+        var d = new Date(params.departDate);
+        var next = new Date(d);
+        next.setDate(next.getDate() + 1);
+        cond.departDate = db.command.gte(d).and(db.command.lt(next));
+      }
+      db.collection("requests").where(cond).orderBy("createTime", "desc").limit(20).get().then(function(res) {
+        if (that.data.searchCounter !== currentSearch) { return; }
+        that.data.requests = (res.data || []).filter(function(item) {
+          if (!params.date) return true;
+          if (!item.departDate) return false;
+          var dd = new Date(item.departDate);
+          if (isNaN(dd.getTime())) return false;
+          var sd = new Date(params.date);
+          return dd.getFullYear() === sd.getFullYear() && dd.getMonth() === sd.getMonth() && dd.getDate() === sd.getDate();
+        }).map(function(item) {
+          item._type = "request";
+          var ds = item.departDate ? that.formatDate(item.departDate) : "";
+          var ts = item.departTime || "";
+          item._dateDisplay = ds + (ds && ts ? " " : "") + ts;
+          if (!item._dateDisplay) item._dateDisplay = "日期待定";
+          item._fromCity = item.fromCity;
+          item._toCity = item.toCity;
+          item._passengers = item.passengers || 1;
+          return item;
+        });
+        updateList();
+        tryFinish();
+      }).catch(function() { tryFinish(true); });
+    } catch(e) { tryFinish(true); }
   },
+  loadCommonRoutes: function() {
+    try {
+      var routes = wx.getStorageSync("searchRoutes") || [];
+      this.setData({ hotRoutes: routes });
+    } catch(e) {}
+  },
+
+  saveSearchRoute: function(from, to) {
+    try {
+      var routes = wx.getStorageSync("searchRoutes") || [];
+      routes = routes.filter(function(r) { return !(r.from === from && r.to === to); });
+      routes.unshift({ from: from, to: to });
+      if (routes.length > 10) routes = routes.slice(0, 10);
+      wx.setStorageSync("searchRoutes", routes);
+      this.setData({ hotRoutes: routes });
+    } catch(e) {}
+  },
+
 
   formatDate: function(d) {
     if (!d) return "";
@@ -216,7 +284,17 @@ Page({
       return (date.getMonth() + 1) + "月" + date.getDate() + "日";
     } catch(e) { return ""; }
   },
-    switchSearchTab: function(e) { this.setData({ searchTab: e.currentTarget.dataset.tab }); },
+  switchSearchTab: function(e) {
+    var tab = e.currentTarget.dataset.tab;
+    var trips = this.data.trips || [];
+    var requests = this.data.requests || [];
+    var list;
+    var count = 0;
+    if (tab === "all") { list = trips.concat(requests); count = trips.length + requests.length; }
+    else if (tab === "trip") { list = trips; count = trips.length; }
+    else { list = requests; count = requests.length; }
+    this.setData({ searchTab: tab, displayList: list, tripList: list, total: count });
+  },
   goDetail: function(e) { wx.navigateTo({ url: "/miniprogram/pages/detail/detail?id=" + (e.currentTarget.dataset.id || e.detail) }); },
   goPassengerDetail: function(e) { wx.navigateTo({ url: "/miniprogram/pages/passenger-detail/passenger-detail?id=" + e.currentTarget.dataset.id }); },
   goPublish: function() { wx.navigateTo({ url: "/miniprogram/pages/publish/publish" }); },

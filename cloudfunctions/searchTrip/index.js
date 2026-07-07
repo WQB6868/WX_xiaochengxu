@@ -1,4 +1,4 @@
-const cloud = require("wx-server-sdk");
+﻿const cloud = require("wx-server-sdk");
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
 const _ = db.command;
@@ -53,22 +53,22 @@ exports.main = async function(event, context) {
 
     var cond = parts.length > 1 ? _.and(parts) : parts[0];
 
-    var totalResult = await db.collection("trips").where(cond).count();
-    var total = totalResult.total;
-
+    // 并行执行 count 和 get 查询
     var query = db.collection("trips").where(cond);
     query = query.orderBy("departDate", "asc").orderBy("createTime", "desc");
-    var result = await query.skip((page - 1) * pageSize).limit(pageSize).get();
-    var list = result.data || [];
+    var queryPromise = query.skip((page - 1) * pageSize).limit(pageSize).get();
+    var countPromise = db.collection("trips").where(cond).count();
+    var results = await Promise.all([countPromise, queryPromise]);
+    var total = results[0].total;
+    var list = results[1].data || [];
 
-
-    // 填充车主信息
+    // 填充车主信息（与前面并行）
     var driverIds = list.map(function(t) { return t._openid; });
     var userMap = {};
     if (driverIds.length > 0) {
       try {
-        var users = await db.collection("users").where({ _id: _.in(driverIds) }).get();
-        (users.data || []).forEach(function(u) {
+        var usersResult = await db.collection("users").where({ _id: _.in(driverIds) }).get();
+        (usersResult.data || []).forEach(function(u) {
           userMap[u._id] = {
             nickName: u.nickName || "",
             avatarUrl: u.avatarUrl || "",

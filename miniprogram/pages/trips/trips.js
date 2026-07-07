@@ -1,4 +1,4 @@
-var api = require("../../utils/api");
+﻿var api = require("../../utils/api");
 var timeUtil = require("../../utils/time");
 var constants = require("../../utils/constants");
 
@@ -106,14 +106,30 @@ Page({
       content: '确认与车主同行吗？',
       success: function(res) {
         if (res.confirm) {
-          wx.showLoading({ title: '确认中...' });
-          api.callFunction('confirmRide', { tripId: id }).then(function(data) {
-            wx.hideLoading();
-            wx.showToast({ title: '已确认', icon: 'success' });
-            that.loadTrips(true);
-          }).catch(function(err) {
-            wx.hideLoading();
-            wx.showToast({ title: (err && err.message) || '网络错误', icon: 'none' });
+          wx.requestSubscribeMessage({
+            tmplIds: ["pgweCWotwr_vH1PwycKeRNtUuRHHD3WJ0DEcmX_pSZc"],
+            success: function() {
+              wx.showLoading({ title: '确认中...' });
+              api.callFunction('confirmRide', { tripId: id }).then(function(data) {
+                wx.hideLoading();
+                wx.showToast({ title: '已确认', icon: 'success' });
+                that.loadTrips(true);
+              }).catch(function(err) {
+                wx.hideLoading();
+                wx.showToast({ title: (err && err.message) || '网络错误', icon: 'none' });
+              });
+            },
+            fail: function() {
+              wx.showLoading({ title: '确认中...' });
+              api.callFunction('confirmRide', { tripId: id }).then(function(data) {
+                wx.hideLoading();
+                wx.showToast({ title: '已确认', icon: 'success' });
+                that.loadTrips(true);
+              }).catch(function(err) {
+                wx.hideLoading();
+                wx.showToast({ title: (err && err.message) || '网络错误', icon: 'none' });
+              });
+            }
           });
         }
       }

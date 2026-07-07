@@ -1,4 +1,4 @@
-var api = require("../../utils/api");
+﻿var api = require("../../utils/api");
 var auth = require("../../utils/auth");
 var constants = require("../../utils/constants");
 
@@ -140,31 +140,57 @@ Page({
       content: "发布后乘客将看到您的车源信息",
       success: function(res) {
         if (res.confirm) {
-          api.callFunction("publishTrip", {
-            from: {
-              province: form.fromProvince || fromCity, city: fromCity,
-              district: form.fromDistrict,
-              address: form.fromAddress + (form.fromDetail ? " " + form.fromDetail : ""),
-              latitude: form.fromLat, longitude: form.fromLng
+          wx.requestSubscribeMessage({
+            tmplIds: ["UE8ZZtN4_r999dwfncBoEV0ui5hI1mEg6kJxdWdkLtw"],
+            success: function() {
+              api.callFunction("publishTrip", {
+                from: {
+                  province: form.fromProvince || fromCity, city: fromCity,
+                  district: form.fromDistrict,
+                  address: form.fromAddress + (form.fromDetail ? " " + form.fromDetail : ""),
+                  latitude: form.fromLat, longitude: form.fromLng
+                },
+                to: {
+                  province: form.toProvince || toCity, city: toCity,
+                  district: form.toDistrict,
+                  address: form.toAddress + (form.toDetail ? " " + form.toDetail : ""),
+                  latitude: form.toLat, longitude: form.toLng
+                },
+                departDate: form.departDate, departTime: form.departTime,
+                seats: form.seats, price: parseFloat(form.price) || 0,
+                vehicleId: form.vehicleId, tags: form.tags, remarks: form.remarks, contactPhone: form.contactPhone
+              }).then(function() {
+                wx.showToast({ title: "发布成功", icon: "success" });
+                setTimeout(function() { wx.navigateBack(); }, 1500);
+              });
             },
-            to: {
-              province: form.toProvince || toCity, city: toCity,
-              district: form.toDistrict,
-              address: form.toAddress + (form.toDetail ? " " + form.toDetail : ""),
-              latitude: form.toLat, longitude: form.toLng
-            },
-            departDate: form.departDate, departTime: form.departTime,
-            seats: form.seats, price: parseFloat(form.price) || 0,
-            vehicleId: form.vehicleId, tags: form.tags, remarks: form.remarks, contactPhone: form.contactPhone
-          }).then(function() {
-            wx.showToast({ title: "发布成功", icon: "success" });
-            setTimeout(function() { wx.navigateBack(); }, 1500);
+            fail: function() {
+              api.callFunction("publishTrip", {
+                from: {
+                  province: form.fromProvince || fromCity, city: fromCity,
+                  district: form.fromDistrict,
+                  address: form.fromAddress + (form.fromDetail ? " " + form.fromDetail : ""),
+                  latitude: form.fromLat, longitude: form.fromLng
+                },
+                to: {
+                  province: form.toProvince || toCity, city: toCity,
+                  district: form.toDistrict,
+                  address: form.toAddress + (form.toDetail ? " " + form.toDetail : ""),
+                  latitude: form.toLat, longitude: form.toLng
+                },
+                departDate: form.departDate, departTime: form.departTime,
+                seats: form.seats, price: parseFloat(form.price) || 0,
+                vehicleId: form.vehicleId, tags: form.tags, remarks: form.remarks, contactPhone: form.contactPhone
+              }).then(function() {
+                wx.showToast({ title: "发布成功", icon: "success" });
+                setTimeout(function() { wx.navigateBack(); }, 1500);
+              });
+            }
           });
         }
       }
     });
   },
-
   submitRequest: function() {
     var that = this;
     var form = this.data.form;

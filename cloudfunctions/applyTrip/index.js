@@ -1,4 +1,4 @@
-const cloud = require("wx-server-sdk");
+﻿const cloud = require("wx-server-sdk");
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
 const _ = db.command;
@@ -94,6 +94,24 @@ exports.main = async function(event, context) {
       });
     }
     
+    // 发送订阅消息通知车主
+    try {
+      var routeName = (t.from && t.from.city || "") + "→" + (t.to && t.to.city || "");
+      var now = new Date();
+      var timeStr = now.getFullYear() + "-" + (now.getMonth()+1).toString().padStart(2,"0") + "-" + now.getDate().toString().padStart(2,"0") + " " + now.getHours().toString().padStart(2,"0") + ":" + now.getMinutes().toString().padStart(2,"0");
+      await cloud.openapi.subscribeMessage.send({
+        touser: t._openid,
+        templateId: "UE8ZZtN4_r999dwfncBoEV0ui5hI1mEg6kJxdWdkLtw",
+        page: "pages/detail/detail?id=" + tripId,
+        data: {
+          thing6: { value: routeName + " 拼车" },
+          time4: { value: timeStr },
+          phrase5: { value: "已申请" },
+          thing22: { value: (userData.nickName || "乘客") + " 申请加入你的行程，请及时处理" }
+        }
+      });
+    } catch(e) { console.log("sendMsg error:", e); }
+
     return { code: 0, data: { status: "pending" } };
   } catch (err) {
     return { code: 4001, message: err.message };

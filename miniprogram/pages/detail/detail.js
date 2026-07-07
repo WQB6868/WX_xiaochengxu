@@ -133,13 +133,28 @@ Page({
       content: "确定申请同行吗？\n申请人数：" + count + " 人\n联系电话：" + phone,
       success: function(res) {
         if (res.confirm) {
-          api.callFunction("applyTrip", {
-            tripId: that.data.tripId,
-            phone: phone,
-            passengerCount: count
-          }).then(function() {
-            wx.showToast({ title: "申请已提交", icon: "success" });
-            that.loadDetail();
+          wx.requestSubscribeMessage({
+            tmplIds: ["pgweCWotwr_vH1PwycKeRNtUuRHHD3WJ0DEcmX_pSZc"],
+            success: function() {
+              api.callFunction("applyTrip", {
+                tripId: that.data.tripId,
+                phone: phone,
+                passengerCount: count
+              }).then(function() {
+                wx.showToast({ title: "申请已提交", icon: "success" });
+                that.loadDetail();
+              });
+            },
+            fail: function() {
+              api.callFunction("applyTrip", {
+                tripId: that.data.tripId,
+                phone: phone,
+                passengerCount: count
+              }).then(function() {
+                wx.showToast({ title: "申请已提交", icon: "success" });
+                that.loadDetail();
+              });
+            }
           });
         }
       }
@@ -228,9 +243,20 @@ Page({
       content: "联系车主确认后，点击确定\n确认后车主将看到您的信息",
       success: function(res) {
         if (res.confirm) {
-          api.callFunction("confirmRide", { tripId: that.data.tripId }).then(function() {
-            wx.showToast({ title: "已确认同行", icon: "success" });
-            that.loadDetail();
+          wx.requestSubscribeMessage({
+            tmplIds: ["pgweCWotwr_vH1PwycKeRNtUuRHHD3WJ0DEcmX_pSZc"],
+            success: function() {
+              api.callFunction("confirmRide", { tripId: that.data.tripId }).then(function() {
+                wx.showToast({ title: "已确认同行", icon: "success" });
+                that.loadDetail();
+              });
+            },
+            fail: function() {
+              api.callFunction("confirmRide", { tripId: that.data.tripId }).then(function() {
+                wx.showToast({ title: "已确认同行", icon: "success" });
+                that.loadDetail();
+              });
+            }
           });
         }
       }

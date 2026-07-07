@@ -1,4 +1,4 @@
-const cloud = require("wx-server-sdk");
+﻿const cloud = require("wx-server-sdk");
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
 const _ = db.command;
@@ -90,6 +90,24 @@ exports.main = async function(event, context) {
         });
       } catch(e) {}
     }
+
+    // 发送订阅消息通知乘客
+    try {
+      var routeName = (t.from && t.from.city || "") + "\u2192" + (t.to && t.to.city || "");
+      var now = new Date();
+      var timeStr = now.getFullYear() + "-" + (now.getMonth()+1).toString().padStart(2,"0") + "-" + now.getDate().toString().padStart(2,"0") + " " + now.getHours().toString().padStart(2,"0") + ":" + now.getMinutes().toString().padStart(2,"0");
+      await cloud.openapi.subscribeMessage.send({
+        touser: passengerOpenId,
+        templateId: "UE8ZZtN4_r999dwfncBoEV0ui5hI1mEg6kJxdWdkLtw",
+        page: "pages/trips/trips",
+        data: {
+          thing6: { value: routeName + " 拼车" },
+          time4: { value: timeStr },
+          phrase5: { value: "已邀请" },
+          thing22: { value: "车主邀请你同行，请及时确认" }
+        }
+      });
+    } catch(e) { console.log("sendMsg error:", e); }
 
     return { code: 0, data: { status: "invited" } };
   } catch (err) {

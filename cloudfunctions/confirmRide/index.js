@@ -1,4 +1,4 @@
-const cloud = require("wx-server-sdk");
+﻿const cloud = require("wx-server-sdk");
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
 const _ = db.command;
@@ -26,6 +26,21 @@ exports.main = async function(event, context) {
 
       if (action === "confirm") {
         passengers[idx].status = "confirmed";
+        // Send notification to passenger
+        try {
+          var routeName3 = (t.from && t.from.city || "") + "→" + (t.to && t.to.city || "");
+          await cloud.openapi.subscribeMessage.send({
+            touser: passengerOpenId,
+            templateId: "pgweCWotwr_vH1PwycKeRNtUuRHHD3WJ0DEcmX_pSZc",
+            page: "pages/detail/detail?id=" + tripId,
+            data: {
+              thing15: { value: routeName3 + " 拼车申请" },
+              phrase1: { value: "已通过" },
+              thing7: { value: "车主已确认你同行，请及时出发" },
+              time13: { value: new Date().toLocaleString("zh-CN", { timeZone: "Asia/Shanghai" }) }
+            }
+          });
+        } catch(e) { console.log("sendMsg error:", e); }
         passengers[idx].confirmTime = db.serverDate();
         var addCount = passengers[idx].passengerCount || 1;
         var newCount = (t.passengerCount || 0) + addCount;
@@ -46,6 +61,21 @@ exports.main = async function(event, context) {
           });
         } catch(e) {}
       } else {
+        // Send notification to passenger
+        try {
+          var routeName2 = (t.from && t.from.city || "") + "→" + (t.to && t.to.city || "");
+          await cloud.openapi.subscribeMessage.send({
+            touser: passengerOpenId,
+            templateId: "pgweCWotwr_vH1PwycKeRNtUuRHHD3WJ0DEcmX_pSZc",
+            page: "pages/detail/detail?id=" + tripId,
+            data: {
+              thing15: { value: routeName2 + " 拼车申请" },
+              phrase1: { value: "未通过" },
+              thing7: { value: "车主已拒绝你的申请" },
+              time13: { value: new Date().toLocaleString("zh-CN", { timeZone: "Asia/Shanghai" }) }
+            }
+          });
+        } catch(e) { console.log("sendMsg error:", e); }
         passengers[idx].status = "rejected";
         passengers[idx].reason = event.rejectReason || "";
         await db.collection("trips").doc(tripId).update({
@@ -62,17 +92,14 @@ exports.main = async function(event, context) {
       }
       return { code: 0, data: { status: action === "confirm" ? "confirmed" : "rejected" } };
     }
-
     // Passenger self-confirm (original behavior)
     if (t.passengerCount >= t.seats) return { code: 2002, message: "座位已满" };
-
     var passengers = t.passengers || [];
     var idx = passengers.findIndex(function(p) { return p._openid === OPENID; });
     
     if (idx >= 0 && passengers[idx].status === "confirmed") {
       return { code: 0, data: { status: "confirmed" } };
     }
-
     var user = await db.collection("users").doc(OPENID).get();
     var userData = user.data || {};
     var entry = {
@@ -84,18 +111,31 @@ exports.main = async function(event, context) {
       applyTime: db.serverDate(),
       confirmTime: db.serverDate()
     };
-
     if (idx >= 0) {
       passengers[idx] = entry;
     } else {
       passengers.push(entry);
     }
-
     var newCount = passengers.filter(function(p) { return p.status === "confirmed"; }).length;
     await db.collection("trips").doc(tripId).update({
       data: { passengers: passengers, passengerCount: newCount }
     });
 
+    // Send notification to owner about passenger confirmation
+    try {
+      var routeName = (t.from && t.from.city || "") + "→" + (t.to && t.to.city || "");
+      await cloud.openapi.subscribeMessage.send({
+        touser: t._openid,
+        templateId: "pgweCWotwr_vH1PwycKeRNtUuRHHD3WJ0DEcmX_pSZc",
+        page: "pages/detail/detail?id=" + tripId,
+        data: {
+              thing15: { value: routeName + " 同行确认" },
+              phrase1: { value: "已确认" },
+              thing7: { value: "乘客已确认同行，请查看行程详情" },
+              time13: { value: new Date().toLocaleString("zh-CN", { timeZone: "Asia/Shanghai" }) }
+            }
+          });
+    } catch(e) { console.log("sendMsg error:", e); }
     // Update the request status if this passenger was invited from a request
     try {
       await db.collection("requests").where({

@@ -1,4 +1,4 @@
-<view class="page-container">
+﻿<view class="page-container">
   <!-- 快捷搜索：出发地 / 目的地 / 日期 -->
   <view class="search-card">
     <view class="search-form">
@@ -54,7 +54,7 @@
     </view>
   </view>
 
-  <!-- 热门路线 -->
+  <!-- 常用地址 -->
   <scroll-view class="route-scroll" scroll-x enhanced show-scrollbar="{{false}}">
     <view class="route-tags">
       <view class="route-tag {{activeRoute === index ? 'active' : ''}}"
@@ -84,8 +84,8 @@
   <!-- 初始提示：未搜索时显示 -->
   <view class="initial-prompt" wx:if="{{!searched && !initialLoading}}">
     <text class="prompt-icon">🔍</text>
-    <text class="prompt-title">搜索车源</text>
-    <text class="prompt-desc">直接输入城市名，或点热门路线快速查找</text>
+    <text class="prompt-title">搜索</text>
+    <text class="prompt-desc">直接输入城市名，或点搜索常用地址快速查找</text>
     <view class="prompt-steps">
       <view class="prompt-step">
         <text class="step-num">1</text>
@@ -99,8 +99,8 @@
   </view>
 
   <!-- 行程列表 -->
-  <view class="trip-list" wx:if="{{tripList.length > 0}}">
-    <view class="result-tabs" wx:if="{{searched}}">
+  <!-- 结果标签：搜索后始终显示 -->
+  <view class="result-tabs" wx:if="{{searched}}">
   <view class="result-count">共 {{total}} 个结果</view>
   <view class="search-tabs">
     <view class="search-tab {{searchTab === 'all' ? 'active' : ''}}" data-tab="all" bind:tap="switchSearchTab">全部</view>
@@ -108,8 +108,9 @@
     <view class="search-tab {{searchTab === 'request' ? 'active' : ''}}" data-tab="request" bind:tap="switchSearchTab">🙋 乘客</view>
   </view>
 </view>
-    <view wx:for="{{tripList}}" wx:key="_id">
-      <view class="inline-card" wx:if="{{(searchTab === 'all' || searchTab === 'trip') && item._type == 'trip'}}" data-id="{{item._id}}" bind:tap="goDetail">
+  <view class="trip-list" wx:if="{{displayList.length > 0}}">
+    <view wx:for="{{displayList}}" wx:key="_id">
+      <view class="inline-card" wx:if="{{item._type == 'trip'}}" data-id="{{item._id}}" bind:tap="goDetail">
         <view class="card-row route-row">
           <text class="city-from" wx:if="{{item.from && item.from.city}}">{{item.from.city}}</text>
           <text class="city-from" wx:elif="{{item.from && item.from.province}}">{{item.from.province}}</text>
@@ -131,7 +132,7 @@
         </view>
       </view>
       <!-- 乘客请求卡片 -->
-      <view class="inline-card request-card" wx:elif="{{(searchTab === 'all' || searchTab === 'request') && item._type == 'request'}}" data-id="{{item._id}}" bind:tap="goPassengerDetail">
+      <view class="inline-card request-card" wx:elif="{{item._type == 'request'}}" data-id="{{item._id}}" bind:tap="goPassengerDetail">
         <view class="card-badge">🙋 乘客</view>
         <view class="card-row route-row">
           <text class="city-from">{{item._fromCity}}</text>
@@ -150,7 +151,7 @@
   </view>
 
   <!-- 搜索结果为空 -->
-  <empty-state wx:elif="{{searched && !initialLoading}}"
+  <empty-state wx:if="{{searched && !initialLoading && displayList.length === 0}}"
     icon="🚗" title="暂无结果"
     desc="换个日期或路线试试" />
 

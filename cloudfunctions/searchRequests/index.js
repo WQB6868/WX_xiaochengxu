@@ -1,4 +1,4 @@
-const cloud = require("wx-server-sdk");
+﻿const cloud = require("wx-server-sdk");
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
 const _ = db.command;
@@ -25,10 +25,14 @@ exports.main = async function(event, context) {
       next.setDate(next.getDate() + 1);
       condition.departDate = _.gte(d).and(_.lt(next));
     }
-    var totalResult = await db.collection("requests").where(condition).count();
-    var result = await db.collection("requests").where(condition)
+    // 并行执行 count 和 get
+    var countPromise = db.collection("requests").where(condition).count();
+    var queryPromise = db.collection("requests").where(condition)
       .orderBy("createTime", "desc")
       .skip((page - 1) * pageSize).limit(pageSize).get();
+    var results = await Promise.all([countPromise, queryPromise]);
+    var totalResult = results[0];
+    var result = results[1];
     var list = (result.data || []).map(function(r) {
       return {
         _id: r._id,
