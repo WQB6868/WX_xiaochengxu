@@ -10,7 +10,7 @@ exports.main = async function(event, context) {
     var user = await db.collection("users").doc(t._openid).get();
     var driver = user.data || {};
     var passengerList = (t.passengers || []).filter(function(p) {
-      return p.status === "confirmed" || p.status === "pending" || p.status === "invited";
+      return p.status === "confirmed" || p.status === "pending" || p.status === "invited" || p.status === "communicating";
     }).map(function(p) {
       return {
         openid: p._openid,
@@ -19,7 +19,9 @@ exports.main = async function(event, context) {
         phone: p.phone || "",
         passengerCount: p.passengerCount || 1,
         status: p.status,
-        applyTime: p.applyTime
+        applyTime: p.applyTime || null,
+        agreeTime: p.agreeTime || null,
+        confirmTime: p.confirmTime || null,
       };
     });
     var fromData = typeof t.from === 'string' ? { city: t.from, district: '', address: '' } : t.from;

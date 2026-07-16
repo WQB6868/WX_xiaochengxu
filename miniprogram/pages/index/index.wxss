@@ -74,13 +74,13 @@
 .date-selector {
   display: flex;
   align-items: center;
+  height: 56rpx;
+  padding: 0 16rpx;
   background: var(--bg-input);
   border-radius: var(--radius-md);
-  padding: 16rpx 20rpx;
 }
-.date-icon { font-size: 28rpx; margin-right: 8rpx; }
-.date-text { font-size: 26rpx; color: var(--text-primary); }
-.date-text.placeholder { color: var(--text-placeholder); }
+.date-icon-holder { display: flex; align-items: center; justify-content: center; height: 56rpx; width: 48rpx; flex-shrink: 0; font-size: 24rpx; }
+.date-text-holder { display: flex; align-items: center; height: 56rpx; flex: 1; min-width: 0; font-size: 26rpx; color: var(--text-primary); }
 .search-btn {
   flex-shrink: 0;
   height: 72rpx;
@@ -252,8 +252,17 @@
 .inline-card .route-row { margin-bottom: 6rpx; }
 .inline-card .city-from, .inline-card .city-to { font-size: 34rpx; font-weight: 700; color: #1a1a1a; }
 .inline-card .route-arrow { font-size: 28rpx; color: #999; margin: 0 12rpx; }
-.inline-card .date-text { font-size: 28rpx; color: #666; }
 .inline-card .seats-text { font-size: 28rpx; color: #fa9a3e; font-weight: 600; }
+
+/* Stats row on trip cards */
+.stats-row { display: flex; gap: 20rpx; margin-top: 4rpx; padding-top: 10rpx; border-top: 2rpx solid #f0f0f0; }
+.stat-item { font-size: 22rpx; color: #999; display: flex; align-items: center; gap: 4rpx; }
+
+/* Viewed vs unviewed card distinction */
+.inline-card.card-viewed { opacity: 0.75; }
+.inline-card.card-viewed .city-from,
+.inline-card.card-viewed .city-to { color: #999; }
+.inline-card:not(.card-viewed) { border-left: 6rpx solid var(--color-primary); }
 
 /* 乘客请求卡片 */
 .request-card { border-left: 8rpx solid #ff9800; }
@@ -261,5 +270,8 @@
 /* 搜索结果切换标签 */
 .result-tabs { margin-bottom: 16rpx; }
 .search-tabs { display: flex; gap: 12rpx; margin-top: 12rpx; }
-.search-tab { padding: 8rpx 24rpx; border-radius: 28rpx; font-size: 24rpx; color: #666; background: #f5f5f5; }
+.search-tab { padding: 8rpx 24rpx; border-radius: 28rpx; font-size: 24rpx; color: #666; background: #f5f5f5; display: flex; align-items: center; gap: 8rpx; }
 .search-tab.active { color: #fff; background: var(--color-primary); font-weight: 600; }
+.tab-count { display: inline-flex; align-items: center; justify-content: center; min-width: 32rpx; height: 32rpx; padding: 0 8rpx; border-radius: 16rpx; font-size: 20rpx; font-weight: 600; background: rgba(0,0,0,0.08); color: inherit; }
+.search-tab.active .tab-count { background: rgba(255,255,255,0.25); color: #fff; }
+.date-text-holder.placeholder { color: var(--text-placeholder); }

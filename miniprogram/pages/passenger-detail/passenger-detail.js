@@ -1,4 +1,5 @@
-var api = require("../../utils/api");
+﻿var api = require("../../utils/api");
+var constants = require("../../utils/constants");
 
 Page({
   data: {
@@ -9,7 +10,11 @@ Page({
     myTrips: [],
     hasTrips: false,
     selectedTripId: "",
-    invited: false
+    invited: false,
+    phoneViewStatus: "none",
+    phoneViewMsg: "",
+    matchedTrips: [],
+    hasMatchedTrips: false
   },
 
   onLoad: function(options) {
@@ -60,19 +65,89 @@ Page({
         myTrips[0].selected = true;
       }
 
+      // Filter trips that match the passenger route
+      var matchedTrips = that.matchRouteTrips(myTrips, reqData);
+      var hasMatchedTrips = matchedTrips.length > 0;
+      if (hasMatchedTrips) matchedTrips[0].selected = true;
+
       that.setData({
         request: reqData,
+        maskedContactPhone: constants.maskPhone(reqData.contactPhone),
         dateDisplay: dateDisplay,
         myTrips: myTrips,
         hasTrips: hasTrips,
-        selectedTripId: hasTrips ? myTrips[0]._id : "",
+        matchedTrips: matchedTrips,
+        hasMatchedTrips: hasMatchedTrips,
+        selectedTripId: hasMatchedTrips ? matchedTrips[0]._id : "",
         loading: false
       });
+      // Check phone view permission on load
+      that.checkPhoneView();
+
+
     });
   },
 
   onTripSelect: function(e) {
     this.setData({ selectedTripId: e.detail.value });
+  },
+
+  // Match passenger route with driver trips
+  matchRouteTrips: function(trips, req) {
+    if (!trips || !req) return [];
+    var results = [];
+    for (var i = 0; i < trips.length; i++) {
+      var t = trips[i];
+      var fromCity = (t.from && t.from.city) || "";
+      var toCity = (t.to && t.to.city) || "";
+      // Handle "市" suffix variations
+      var reqFrom = req.fromCity || "";
+      var reqTo = req.toCity || "";
+      var fromMatch = fromCity === reqFrom || fromCity === reqFrom + "市" || fromCity.replace("市", "") === reqFrom.replace("市", "");
+      var toMatch = toCity === reqTo || toCity === reqTo + "市" || toCity.replace("市", "") === reqTo.replace("市", "");
+      if (fromMatch && toMatch) {
+        results.push(t);
+      }
+    }
+    return results;
+  },
+
+  // Check phone view status (called on page load)
+  checkPhoneView: function() {
+    var that = this;
+    var targetOpenId = this.data.request._openid;
+    if (!targetOpenId) return;
+    wx.cloud.callFunction({
+      name: "phoneViewRequest",
+      data: { action: "check", tripId: this.data.requestId, targetOpenId: targetOpenId }
+    }).then(function(res) {
+      if (res.result && res.result.code === 0) {
+        that.setData({ phoneViewStatus: res.result.data.status });
+      }
+    }).catch(function() {});
+  },
+
+  // Request to view passenger phone (owner must approve)
+  requestPhoneView: function() {
+    var that = this;
+    var targetOpenId = this.data.request._openid;
+    if (!targetOpenId) { wx.showToast({ title: "用户信息异常", icon: "none" }); return; }
+    wx.showLoading({ title: "申请中...", mask: true });
+    wx.cloud.callFunction({
+      name: "phoneViewRequest",
+      data: { action: "request", tripId: this.data.requestId, targetOpenId: targetOpenId }
+    }).then(function(res) {
+      wx.hideLoading();
+      if (res.result && res.result.code === 0) {
+        wx.showToast({ title: "已发起申请，等待对方同意", icon: "none" });
+        that.setData({ phoneViewStatus: "pending" });
+      } else {
+        wx.showToast({ title: res.result && res.result.message || "申请失败", icon: "none" });
+      }
+    }).catch(function() {
+      wx.hideLoading();
+      wx.showToast({ title: "网络错误", icon: "none" });
+    });
   },
 
   invitePassenger: function() {

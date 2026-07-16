@@ -14,15 +14,17 @@ Page({
     searchParams: { fromCity: "", toCity: "", date: "" },
     hotRoutes: [],
     dateList: [], activeRoute: -1, activeDate: -1,
-    page: 1, pageSize: 20, total: 0, hasMore: false,
-    loadingMore: false, initialLoading: false, searched: false, searchTab: "all",
+    page: 1, pageSize: 20, total: 0, tripCount: 0, reqCount: 0, hasMore: false,
+    loadingMore: false, initialLoading: false, searched: false, searchTab: "trip",
     // 输入相关
-    showSuggest: "", filteredCities: [], inputFocus: "", searchCounter: 0
+    showSuggest: "", filteredCities: [], inputFocus: "", searchCounter: 0,
+    viewedTrips: {}
   },
 
   onShow: function() {
     var params = this.data.searchParams;
     if (params.fromCity && params.toCity) {
+      this.loadViewedTrips();
       this.loadTrips(true);
     }
   },
@@ -186,10 +188,11 @@ Page({
       var requests = that.data.requests || [];
       var list;
       var count = 0;
-      if (tab === "all") { list = trips.concat(requests); count = trips.length + requests.length; }
-      else if (tab === "trip") { list = trips; count = trips.length; }
-      else { list = requests; count = requests.length; }
-      that.setData({ displayList: list, tripList: list, total: count });
+      var tripCount = trips.length;
+      var reqCount = requests.length;
+      if (tab === "trip") { list = trips; count = tripCount; }
+      else { list = requests; count = reqCount; }
+      that.setData({ displayList: list, tripList: list, total: count, tripCount: tripCount, reqCount: reqCount });
     }
 
 
@@ -199,6 +202,9 @@ Page({
       that.data.trips = (tripData.list || []).map(function(item) {
         item._type = "trip";
         item._dateDisplay = item.departDate ? that.formatDate(item.departDate) + " " + (item.departTime || "") : (item.departTime || "");
+        item._viewed = that.data.viewedTrips && that.data.viewedTrips[item._id] ? true : false;
+        item._viewCount = item.viewCount || 0;
+        item._applyCount = item.applyCount || 0;
         return item;
       });
       updateList();
@@ -264,6 +270,13 @@ Page({
     } catch(e) {}
   },
 
+  loadViewedTrips: function() {
+    try {
+      var viewed = wx.getStorageSync("viewedTrips") || {};
+      this.setData({ viewedTrips: viewed });
+    } catch(e) {}
+  },
+
   saveSearchRoute: function(from, to) {
     try {
       var routes = wx.getStorageSync("searchRoutes") || [];
@@ -289,14 +302,22 @@ Page({
     var tab = e.currentTarget.dataset.tab;
     var trips = this.data.trips || [];
     var requests = this.data.requests || [];
-    var list;
-    var count = 0;
-    if (tab === "all") { list = trips.concat(requests); count = trips.length + requests.length; }
-    else if (tab === "trip") { list = trips; count = trips.length; }
-    else { list = requests; count = requests.length; }
-    this.setData({ searchTab: tab, displayList: list, tripList: list, total: count });
+    var list = tab === "trip" ? trips : requests;
+    var count = list.length;
+    this.setData({ searchTab: tab, displayList: list, tripList: list, total: count, tripCount: trips.length, reqCount: requests.length });
   },
-  goDetail: function(e) { wx.navigateTo({ url: "/miniprogram/pages/detail/detail?id=" + (e.currentTarget.dataset.id || e.detail) }); },
+  goDetail: function(e) {
+    var id = e.currentTarget.dataset.id || e.detail;
+    if (id) {
+      // Mark as viewed
+      try {
+        var viewed = wx.getStorageSync("viewedTrips") || {};
+        viewed[id] = true;
+        wx.setStorageSync("viewedTrips", viewed);
+      } catch(e) {}
+    }
+    wx.navigateTo({ url: "/miniprogram/pages/detail/detail?id=" + id });
+  },
   goPassengerDetail: function(e) { wx.navigateTo({ url: "/miniprogram/pages/passenger-detail/passenger-detail?id=" + e.currentTarget.dataset.id }); },
   goPublish: function() { wx.navigateTo({ url: "/miniprogram/pages/publish/publish" }); },
   goRequest: function() { wx.navigateTo({ url: "/miniprogram/pages/publish/publish?mode=request" }); }

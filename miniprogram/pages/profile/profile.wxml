@@ -1,4 +1,4 @@
-<view class="profile-page">
+﻿<view class="profile-page">
   <view class="profile-header">
     <view class="avatar-section">
       <image class="profile-avatar" src="{{userInfo.avatarUrl || '/assets/icons/default_avatar.png'}}" mode="aspectFill" />

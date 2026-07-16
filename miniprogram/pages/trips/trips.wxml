@@ -1,4 +1,4 @@
-<view class="page-container">
+﻿<view class="page-container">
   <view class="tabs">
     <view class="tab {{activeTab === 'driver' ? 'active' : ''}}" data-tab="driver" bind:tap="switchTab">
       🚗 我发布的
@@ -35,10 +35,33 @@
         </view>
         <view class="trip-seats">
           <text>👥 {{item.passengers}}人 求同行</text>
-          <text wx:if="{{item.contactPhone}}" class="trip-phone">☎ {{item.contactPhone}}</text>
+          <text wx:if="{{item.contactPhone && (item.status === 'confirmed' || item.status === 'invited')}}" class="trip-phone">☎ {{item.contactPhone}}</text>
+          <text wx:elif="{{item.contactPhone}}" class="trip-phone masked">☎ {{item.maskedContactPhone}}</text>
+          <text wx:elif="{{item.contactPhone}}" class="trip-phone masked">☎ {{item.maskedContactPhone}}</text>
+          <text wx:elif="{{item.contactPhone}}" class="trip-phone masked">☎ {{item.maskedContactPhone}}</text>
         </view>
         <view class="trip-actions">
           <button class="btn-delete" catch:tap="deleteRequest" data-id="{{item._id}}">删除</button>
+        </view>
+        <!-- Phone view approval -->
+        <view class="phone-approval-section" wx:if="{{pendingPhoneRequests.length > 0}}">
+          <text class="phone-approval-title">📞 联系方式查看申请</text>
+          <view class="phone-approval-item" wx:for="{{pendingPhoneRequests}}" wx:key="_id">
+            <text class="phone-approval-name">{{item.requesterNickName}} 申请查看你的联系方式</text>
+            <view class="phone-approval-actions">
+              <button class="btn-approve" catch:tap="showPhoneRequestApproval" data-reqid="{{item.tripId}}" data-name="{{item.requesterNickName}}" data-requesteropenid="{{item.requesterOpenId}}">处理</button>
+            </view>
+          </view>
+        </view>
+        <!-- Phone view approval -->
+        <view class="phone-approval-section" wx:if="{{pendingPhoneRequests.length > 0}}">
+          <text class="phone-approval-title">📞 联系方式查看申请</text>
+          <view class="phone-approval-item" wx:for="{{pendingPhoneRequests}}" wx:key="_id">
+            <text class="phone-approval-name">{{item.requesterNickName}} 申请查看你的联系方式</text>
+            <view class="phone-approval-actions">
+              <button class="btn-approve" catch:tap="showPhoneRequestApproval" data-reqid="{{item.tripId}}" data-name="{{item.requesterNickName}}" data-requesteropenid="{{item.requesterOpenId}}">处理</button>
+            </view>
+          </view>
         </view>
       </block>
       <!-- 车源卡片 -->

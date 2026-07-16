@@ -93,7 +93,9 @@ exports.main = async function(event, context) {
         driver: userMap[t._openid] || {},
         passengerCount: t.passengerCount,
         tags: t.tags || [],
-        createTime: t.createTime
+        createTime: t.createTime,
+        viewCount: t.viewCount || 0,
+        applyCount: (t.passengers || []).length
       };
     });
 

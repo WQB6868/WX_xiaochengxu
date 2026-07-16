@@ -64,19 +64,18 @@
 .applicants-header { display: flex; justify-content: space-between; align-items: center; padding: 24rpx; font-size: 28rpx; font-weight: 600; color: #333; background: #f9f9f9; }
 .toggle-icon { font-size: 24rpx; color: #999; }
 .applicants-list { padding: 0 24rpx 16rpx; }
-.applicant-item { display: flex; align-items: center; padding: 16rpx 0; border-bottom: 2rpx solid #f0f0f0; }
+.applicant-item { padding: 20rpx 0; border-bottom: 2rpx solid #f0f0f0; display: flex; flex-direction: column; gap: 14rpx; }
 .applicant-item:last-child { border-bottom: none; }
-.applicant-avatar { width: 64rpx; height: 64rpx; border-radius: 50%; margin-right: 16rpx; }
-.applicant-info { flex: 1; }
-.applicant-name { font-size: 28rpx; color: #333; display: block; }
-.applicant-phone { font-size: 24rpx; color: #07c160; margin-top: 4rpx; display: block; }
-.applicant-count { font-size: 22rpx; color: #fa9a3e; margin-top: 2rpx; display: block; }
-.applicant-status { font-size: 24rpx; margin-top: 4rpx; display: block; }
-.status-pending { color: #fa9a3e; }
-.status-confirmed { color: #07c160; }
-.status-rejected { color: #fa5151; }
-.status-cancelled { color: #999; }
-.applicant-actions { display: flex; gap: 10rpx; flex-shrink: 0; }
+.applicant-top-row { display: flex; align-items: flex-start; width: 100%; }
+.applicant-avatar { width: 72rpx; height: 72rpx; border-radius: 50%; margin-right: 16rpx; flex-shrink: 0; margin-top: 4rpx; }
+.applicant-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4rpx; }
+.applicant-name-row { display: flex; align-items: center; gap: 10rpx; flex-wrap: wrap; }
+.applicant-name { font-size: 30rpx; font-weight: 600; color: #1a1a1a; }
+.applicant-phone { font-size: 24rpx; color: #07c160; }
+.applicant-phone.masked { color: #bbb !important; font-size: 22rpx !important; }
+.applicant-count { font-size: 22rpx; color: #fa9a3e; background: #fff8e1; padding: 2rpx 12rpx; border-radius: 12rpx; display: inline-block; }
+.applicant-status { font-size: 24rpx; }
+.applicant-actions { display: flex; gap: 10rpx; flex-wrap: wrap; padding-left: 88rpx; }
 .btn-confirm, .btn-reject { min-width: 80rpx; height: 52rpx; line-height: 52rpx; border-radius: 26rpx; font-size: 22rpx; padding: 0 16rpx; border: none; text-align: center; }
 .btn-confirm { background: #07c160; color: #fff; }
 .btn-confirm::after { border: none; }
@@ -125,3 +124,113 @@
 .btn-confirm-edit { flex: 1; height: 80rpx; line-height: 80rpx; border-radius: 40rpx; font-size: 28rpx; text-align: center; background: var(--color-primary); color: #fff; border: none; font-weight: 600; }
 .btn-confirm-edit::after { border: none; }
 .btn-confirm-edit:active { opacity: 0.85; }
+
+/* Privacy agreement */
+.privacy-row {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  margin: 16rpx 0;
+  padding: 12rpx;
+  background: #f8f9fa;
+  border-radius: var(--radius-md);
+}
+.privacy-checkbox { transform: scale(0.8); }
+.privacy-text { font-size: 24rpx; color: #666; }
+.privacy-link { font-size: 24rpx; color: var(--color-primary); text-decoration: underline; }
+.privacy-hint {
+  font-size: 22rpx;
+  color: #999;
+  line-height: 1.6;
+  margin-bottom: 16rpx;
+  padding: 12rpx;
+  background: #fff8e1;
+  border-radius: var(--radius-md);
+  border-left: 4rpx solid #ffa000;
+}
+
+/* Communicating status */
+.apply-status.communicating { background: #e3f2fd; border-left: 6rpx solid #1976d2; }
+.apply-status.communicating .status-icon { color: #1976d2; }
+.apply-status.communicating .status-text { color: #1565c0; }
+
+/* Disabled contact button */
+.contact-call-btn.disabled {
+  background: #ccc !important;
+  color: #fff !important;
+}
+/* Masked phone */
+.contact-card-phone.masked {
+  color: #999 !important;
+  font-weight: 400 !important;
+  letter-spacing: normal !important;
+  font-size: 30rpx !important;
+}
+/* Pending badge */
+.pending-badge {
+  font-size: 20rpx;
+  color: #fff;
+  background: #fa5151;
+  padding: 4rpx 14rpx;
+  border-radius: 20rpx;
+  font-weight: 600;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+/* Applicant action buttons - optimized layout */
+.btn-agree { min-width: 100rpx; height: 52rpx; line-height: 52rpx; border-radius: 26rpx; font-size: 22rpx; padding: 0 16rpx; border: none; text-align: center; background: #07c160; color: #fff; }
+.btn-agree::after { border: none; }
+.btn-agree:active { opacity: 0.85; }
+.btn-confirm-sm { min-width: 90rpx; height: 52rpx; line-height: 52rpx; border-radius: 26rpx; font-size: 22rpx; padding: 0 16rpx; border: none; text-align: center; background: #07c160; color: #fff; }
+.btn-confirm-sm::after { border: none; }
+.btn-confirm-sm:active { opacity: 0.85; }
+.btn-call-lg { min-width: 90rpx; height: 52rpx; line-height: 52rpx; border-radius: 26rpx; font-size: 22rpx; padding: 0 16rpx; border: none; text-align: center; background: #e8f4fd; color: #1976d2; font-weight: 500; }
+.btn-call-lg::after { border: none; }
+.btn-call-lg:active { opacity: 0.85; }
+.btn-reject { min-width: 80rpx; height: 52rpx; line-height: 52rpx; border-radius: 26rpx; font-size: 22rpx; padding: 0 16rpx; border: none; text-align: center; background: #ffe8e8; color: #fa5151; }
+.btn-reject::after { border: none; }
+.btn-reject:active { opacity: 0.85; }
+
+
+/* Disabled contact button */
+.contact-call-btn.disabled {
+  background: #ccc !important;
+  color: #fff !important;
+}
+/* Masked phone */
+.contact-card-phone.masked {
+  color: #999 !important;
+  font-weight: 400 !important;
+  letter-spacing: normal !important;
+  font-size: 30rpx !important;
+}
+/* Pending badge */
+.pending-badge {
+  font-size: 20rpx;
+  color: #fff;
+  background: #fa5151;
+  padding: 4rpx 14rpx;
+  border-radius: 20rpx;
+  font-weight: 600;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+/* Applicant action buttons - optimized layout */
+.btn-agree { min-width: 100rpx; height: 52rpx; line-height: 52rpx; border-radius: 26rpx; font-size: 22rpx; padding: 0 16rpx; border: none; text-align: center; background: #07c160; color: #fff; }
+.btn-agree::after { border: none; }
+.btn-agree:active { opacity: 0.85; }
+.btn-confirm-sm { min-width: 90rpx; height: 52rpx; line-height: 52rpx; border-radius: 26rpx; font-size: 22rpx; padding: 0 16rpx; border: none; text-align: center; background: #07c160; color: #fff; }
+.btn-confirm-sm::after { border: none; }
+.btn-confirm-sm:active { opacity: 0.85; }
+.btn-call-lg { min-width: 90rpx; height: 52rpx; line-height: 52rpx; border-radius: 26rpx; font-size: 22rpx; padding: 0 16rpx; border: none; text-align: center; background: #e8f4fd; color: #1976d2; font-weight: 500; }
+.btn-call-lg::after { border: none; }
+.btn-call-lg:active { opacity: 0.85; }
+.btn-reject { min-width: 80rpx; height: 52rpx; line-height: 52rpx; border-radius: 26rpx; font-size: 22rpx; padding: 0 16rpx; border: none; text-align: center; background: #ffe8e8; color: #fa5151; }
+.btn-reject::after { border: none; }
+.btn-reject:active { opacity: 0.85; }

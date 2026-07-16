@@ -44,10 +44,10 @@
     <view class="search-row">
       <picker class="date-picker" mode="date" value="{{searchParams.date}}" bindchange="onDateChange">
         <view class="date-selector">
-          <text class="date-icon">📅</text>
-          <text class="date-text {{searchParams.date ? '' : 'placeholder'}}">
+          <view class="date-icon-holder">📅</view>
+          <view class="date-text-holder {{searchParams.date ? '' : 'placeholder'}}">
             {{searchParams.date || '选择日期'}}
-          </text>
+          </view>
         </view>
       </picker>
       <button class="btn-primary search-btn" bind:tap="doSearch">搜索</button>
@@ -101,16 +101,14 @@
   <!-- 行程列表 -->
   <!-- 结果标签：搜索后始终显示 -->
   <view class="result-tabs" wx:if="{{searched}}">
-  <view class="result-count">共 {{total}} 个结果</view>
   <view class="search-tabs">
-    <view class="search-tab {{searchTab === 'all' ? 'active' : ''}}" data-tab="all" bind:tap="switchSearchTab">全部</view>
-    <view class="search-tab {{searchTab === 'trip' ? 'active' : ''}}" data-tab="trip" bind:tap="switchSearchTab">🚗 车源</view>
-    <view class="search-tab {{searchTab === 'request' ? 'active' : ''}}" data-tab="request" bind:tap="switchSearchTab">🙋 乘客</view>
+    <view class="search-tab {{searchTab === 'trip' ? 'active' : ''}}" data-tab="trip" bind:tap="switchSearchTab">🚗 车源 <text class="tab-count">{{tripCount}}</text></view>
+    <view class="search-tab {{searchTab === 'request' ? 'active' : ''}}" data-tab="request" bind:tap="switchSearchTab">🙋 乘客 <text class="tab-count">{{reqCount}}</text></view>
   </view>
 </view>
   <view class="trip-list" wx:if="{{displayList.length > 0}}">
     <view wx:for="{{displayList}}" wx:key="_id">
-      <view class="inline-card" wx:if="{{item._type == 'trip'}}" data-id="{{item._id}}" bind:tap="goDetail">
+      <view class="inline-card {{item._viewed ? 'card-viewed' : ''}}" wx:if="{{item._type == 'trip'}}" data-id="{{item._id}}" bind:tap="goDetail">
         <view class="card-row route-row">
           <text class="city-from" wx:if="{{item.from && item.from.city}}">{{item.from.city}}</text>
           <text class="city-from" wx:elif="{{item.from && item.from.province}}">{{item.from.province}}</text>
@@ -129,8 +127,12 @@
         </view>
         <view class="card-row seats-row">
           <text class="seats-text">剩余 {{item.seats || 0}} 座</text>
-        </view>
-      </view>
+              </view>
+              <view class="card-row stats-row">
+                <text class="stat-item">👀 {{item._viewCount}}</text>
+                <text class="stat-item">📩 {{item._applyCount}}</text>
+              </view>
+            </view>
       <!-- 乘客请求卡片 -->
       <view class="inline-card request-card" wx:elif="{{item._type == 'request'}}" data-id="{{item._id}}" bind:tap="goPassengerDetail">
         <view class="card-badge">🙋 乘客</view>

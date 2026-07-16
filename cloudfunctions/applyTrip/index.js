@@ -44,6 +44,7 @@ exports.main = async function(event, context) {
       passengerCount: passengerCount,
       status: "pending",
       applyTime: db.serverDate(),
+      agreeTime: null,
       confirmTime: null,
       cancelTime: null,
       reason: ""

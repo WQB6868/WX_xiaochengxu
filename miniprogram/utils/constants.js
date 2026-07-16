@@ -34,8 +34,13 @@ var ERROR_CODE = {
   DUPLICATE_APPLY: 3001, SELF_APPLY: 3002, SYSTEM_ERROR: 4001, RATE_LIMIT: 5001
 };
 
+function maskPhone(phone) {
+  if (!phone || phone.length < 7) return phone || '';
+  return phone.substring(0, 3) + '****' + phone.substring(phone.length - 4);
+}
+
 module.exports = {
   TRIP_STATUS: TRIP_STATUS, TRIP_STATUS_TEXT: TRIP_STATUS_TEXT,
   APPLICATION_STATUS: APPLICATION_STATUS, PASSENGER_STATUS_TEXT: PASSENGER_STATUS_TEXT,
-  TRIP_TAGS: TRIP_TAGS, ERROR_CODE: ERROR_CODE
+  TRIP_TAGS: TRIP_TAGS, ERROR_CODE: ERROR_CODE, maskPhone: maskPhone
 };

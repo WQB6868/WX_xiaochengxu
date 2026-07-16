@@ -1,4 +1,4 @@
-<view class="page-container">
+﻿<view class="page-container">
   <!-- Vehicle List -->
   <view class="vehicle-list" wx:if="{{vehicles.length > 0}}">
     <block wx:for="{{vehicles}}" wx:key="_id">

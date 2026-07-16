@@ -32,3 +32,16 @@
 .result-content { display: flex; flex-direction: column; align-items: center; padding: 40rpx 0; }
 .result-icon { font-size: 64rpx; margin-bottom: 16rpx; }
 .result-text { font-size: 30rpx; color: #07c160; font-weight: 600; margin-bottom: 32rpx; }
+
+/* Masked phone */
+.phone-value.masked { color: #bbb !important; font-weight: 400 !important; letter-spacing: normal !important; font-size: 30rpx !important; }
+/* Apply view button */
+.apply-view-btn { width: 100%; height: 72rpx; line-height: 72rpx; border-radius: 36rpx; font-size: 26rpx; font-weight: 500; background: #e8f4fd; color: #1976d2; border: none; text-align: center; margin-top: 12rpx; }
+.apply-view-btn::after { border: none; }
+.apply-view-btn:active { opacity: 0.85; }
+/* Apply hint */
+.apply-hint { text-align: center; padding: 8rpx 0; font-size: 24rpx; color: #fa9a3e; }
+
+/* Apply status hint */
+.apply-status-hint { text-align: center; padding: 12rpx 0; font-size: 26rpx; color: #fa9a3e; }
+.apply-status-hint.rejected { color: #fa5151; }

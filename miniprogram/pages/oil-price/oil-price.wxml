@@ -1,4 +1,4 @@
-<view class="page-container">
+﻿<view class="page-container">
   <!-- 省份选择 -->
   <view class="province-bar">
     <scroll-view class="province-scroll" scroll-x enhanced show-scrollbar="{{false}}">

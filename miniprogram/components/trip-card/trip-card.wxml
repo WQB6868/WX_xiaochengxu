@@ -1,4 +1,4 @@
-<view class="trip-card" data-id="{{trip._id}}" bind:tap="onTap">
+﻿<view class="trip-card" data-id="{{trip._id}}" bind:tap="onTap">
   <view class="card-row route-row">
     <text class="city-from" wx:if="{{trip.from && trip.from.city}}">{{trip.from.city}}</text>
     <text class="city-from" wx:elif="{{trip.from && trip.from.province}}">{{trip.from.province}}</text>

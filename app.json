@@ -25,7 +25,7 @@
                    "list":  [
                                 {
                                     "pagePath":  "miniprogram/pages/index/index",
-                                    "text":  "发现车源",
+                                    "text":  "发现",
                                     "iconPath":  "assets/icons/search.png",
                                     "selectedIconPath":  "assets/icons/search_active.png"
                                 },

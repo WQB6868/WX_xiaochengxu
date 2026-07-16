@@ -7,9 +7,12 @@
     <view class="contact-card" wx:if="{{driverPhone}}">
       <view class="contact-card-row">
         <text class="contact-card-label">车主手机</text>
-        <text class="contact-card-phone">{{driverPhone}}</text>
+        <text class="contact-card-phone" wx:if="{{isOwner || applyStatus === 'communicating' || applyStatus === 'confirmed'}}">{{driverPhone}}</text>
+        <text class="contact-card-phone masked" wx:else>{{maskedDriverPhone}}</text>
       </view>
-      <button class="contact-call-btn" wx:if="{{!isOwner}}" bind:tap="contactDriver">拨打车主电话</button>
+      <button class="contact-call-btn" wx:if="{{!isOwner && (applyStatus === 'communicating' || applyStatus === 'confirmed')}}" bind:tap="contactDriver">📞 拨打车主电话</button>
+      <button class="contact-call-btn disabled" wx:elif="{{!isOwner && !hasApplied}}">请先申请同行</button>
+      <button class="contact-call-btn disabled" wx:elif="{{!isOwner && applyStatus === 'pending'}}">等待车主同意</button>
     </view>
 
     <view class="driver-card card">
@@ -88,7 +91,13 @@
             <view class="stepper-btn" bind:tap="increaseCount">+</view>
           </view>
         </view>
-        <button class="btn-primary apply-submit-btn" bind:tap="submitApply">📩 提交申请</button>
+          <view class="privacy-row">
+            <checkbox class="privacy-checkbox" checked="{{agreeChecked}}" bindtap="toggleAgree" />
+            <text class="privacy-text">我已阅读并同意</text>
+            <text class="privacy-link" bind:tap="showPrivacyDetail">《隐私协议》</text>
+          </view>
+          <text class="privacy-hint">您发起申请即视为授权平台在车主同意后将您的联系方式提供给对方用于出行沟通。</text>
+        <button class="btn-primary apply-submit-btn" wx:if="{{applyCount > 0}}" bind:tap="submitApply">📩 提交申请</button>
       </view>
     </view>
 
@@ -119,31 +128,45 @@
           <text class="toggle-icon">{{showApplicants ? '▲' : '▼'}}</text>
         </view>
         <view class="applicants-list" wx:if="{{showApplicants && trip.passengers && trip.passengers.length > 0}}">
-          <view class="applicant-item" wx:for="{{trip.passengers}}" wx:key="openid">
-            <image class="applicant-avatar" src="{{item.avatarUrl || '/assets/icons/default_avatar.png'}}" mode="aspectFill" />
-            <view class="applicant-info">
-              <text class="applicant-name">{{item.nickname || '乘客'}}</text>
-              <text class="applicant-phone" wx:if="{{item.phone}}">☎ {{item.phone}}</text>
-              <text class="applicant-count" wx:if="{{item.passengerCount && item.passengerCount > 1}}">👥 {{item.passengerCount}}人</text>
-              <text class="applicant-status status-{{item.status}}">
-                {{item.status === 'pending' ? '⏳ 等待确认' : ''}}
-                {{item.status === 'confirmed' ? '✅ 已确认同行' : ''}}
-                {{item.status === 'rejected' ? '❌ 已拒绝' : ''}}
-              </text>
+                    <view class="applicant-item" wx:for="{{trip.passengers}}" wx:key="openid">
+            <view class="applicant-top-row">
+              <image class="applicant-avatar" src="{{item.avatarUrl || '/assets/icons/default_avatar.png'}}" mode="aspectFill" />
+              <view class="applicant-info">
+                <view class="applicant-name-row">
+                  <text class="applicant-name">{{item.nickname || '乘客'}}</text>
+                  <text class="applicant-count" wx:if="{{item.passengerCount && item.passengerCount > 1}}">👥 {{item.passengerCount}}人</text>
+                </view>
+                <text class="applicant-phone" wx:if="{{item.phone && (item.status === 'communicating' || item.status === 'confirmed')}}">☎ {{item.phone}}</text>
+                <text class="applicant-phone masked" wx:elif="{{item.phone && item.status === 'pending'}}">☎ {{item.maskedPhone}}</text>
+                <text class="applicant-status status-{{item.status}}">
+                  <block wx:if="{{item.status === 'pending'}}">⏳ 等待确认</block>
+                  <block wx:elif="{{item.status === 'communicating'}}">📞 沟通中</block>
+                  <block wx:elif="{{item.status === 'confirmed'}}">✅ 已确认同行</block>
+                  <block wx:elif="{{item.status === 'rejected'}}">❌ 已拒绝</block>
+                </text>
+              </view>
             </view>
             <view class="applicant-actions">
-                <button wx:if="{{item.status === 'pending'}}" class="btn-confirm" bind:tap="confirmPassenger" data-openid="{{item.openid}}">确认</button>
-                <button wx:if="{{item.status === 'pending'}}" class="btn-reject" bind:tap="rejectPassenger" data-openid="{{item.openid}}">拒绝</button>
-                <button wx:if="{{item.phone}}" class="btn-call" bind:tap="callPassenger" data-phone="{{item.phone}}">拨打</button>
-              </view>
+              <block wx:if="{{item.status === 'pending'}}">
+                <button class="btn-agree" bind:tap="agreeToCommunicate" data-openid="{{item.openid}}">📞 同意沟通</button>
+                <button class="btn-reject" bind:tap="rejectPassenger" data-openid="{{item.openid}}">拒绝</button>
+              </block>
+              <block wx:elif="{{item.status === 'communicating'}}">
+                <button class="btn-call" bind:tap="callPassenger" data-phone="{{item.phone}}">📞 拨打</button>
+                <button class="btn-confirm-sm" bind:tap="confirmRideOwner" data-openid="{{item.openid}}">✅ 确认同行</button>
+                <button class="btn-reject" bind:tap="rejectPassenger" data-openid="{{item.openid}}">拒绝</button>
+              </block>
+              <block wx:elif="{{item.status === 'confirmed'}}">
+                <button class="btn-call" bind:tap="callPassenger" data-phone="{{item.phone}}">📞 拨打</button>
+              </block>
+            </view>
           </view>
-        </view>
-        <view class="applicants-empty" wx:elif="{{showApplicants && (!trip.passengers || trip.passengers.length === 0)}}">暂无同行乘客</view>
-      </view>
 
+        </view>
       <button wx:if="{{isOwner && (trip.status === 'recruiting' || trip.status === 'full')}}" class="btn-primary" bind:tap="startTrip">🚀 确认发车</button>
       <button wx:if="{{isOwner && (trip.status === 'recruiting' || trip.status === 'full')}}" class="btn-secondary" bind:tap="editSeats">🪑 修改座位数</button>
       <button wx:if="{{isOwner}}" class="btn-danger" bind:tap="deleteTrip">🗑 删除行程</button>
+    </view>
     </view>
   </block>
 </view>

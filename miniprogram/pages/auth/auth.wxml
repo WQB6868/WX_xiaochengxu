@@ -1,4 +1,4 @@
-<view class="page-container">
+﻿<view class="page-container">
   <view class="auth-card card">
     <view class="auth-icon">🪪</view>
     <text class="auth-title">实名认证</text>
