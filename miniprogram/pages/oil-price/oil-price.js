@@ -1,4 +1,4 @@
-var api = require("../../utils/api");
+﻿var api = require("../../utils/api");
 var provinces = ["北京","天津","上海","重庆","河北","山西","辽宁","吉林","黑龙江","江苏","浙江","安徽","福建","江西","山东","河南","湖北","湖南","广东","海南","四川","贵州","云南","陕西","甘肃","青海","内蒙古","广西","西藏","宁夏","新疆"];
 
 // 本地模拟油价数据（云函数不可用时兜底展示）
@@ -44,7 +44,10 @@ Page({
     loaded: false,
     priceData: null,
     source: "",
-    error: ""
+    error: "",
+    news: "",
+    showNewsModal: false,
+    fullNews: ""
   },
   onLoad: function() {
     this.loadPrice();
@@ -64,21 +67,30 @@ Page({
         priceData: data,
         loaded: true,
         loading: false,
-        source: "实时"
+        source: "实时",
+        news: data.news || ""
       });
     }).catch(function() {
       // 云函数失败，使用本地模拟数据兜底
       var mock = MOCK_PRICES[province] || { p92: "--", p95: "--", p98: "--", p0: "--", time: "暂缺" };
+      mock.news = new Date().getFullYear() + "-" + String(new Date().getMonth()+1).padStart(2,"0") + "-" + String(new Date().getDate()).padStart(2,"0") + " 油价仅供参考，以实际加油站为准";
       that.setData({
         priceData: mock,
         loaded: true,
         loading: false,
-        source: "参考"
+        source: "参考",
+        news: mock.news || ""
       });
       wx.showToast({ title: "使用参考数据", icon: "none" });
     });
+  },
+  showNewsPopup: function() {
+    this.setData({
+      showNewsModal: true,
+      fullNews: this.data.news
+    });
+  },
+  closeNewsPopup: function() {
+    this.setData({ showNewsModal: false });
   }
 });
-
-
-

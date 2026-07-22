@@ -12,6 +12,14 @@
     </scroll-view>
   </view>
 
+  <!-- 油价调整新闻广播 -->
+  <view class="news-marquee" wx:if="{{news}}" bind:tap="showNewsPopup">
+    <text class="news-icon">📢</text>
+    <view class="marquee-wrapper">
+      <text class="marquee-text">{{news}}</text>
+    </view>
+  </view>
+
   <!-- 加载状态 -->
   <view class="loading-init" wx:if="{{loading && !loaded}}">
     <view class="loading-spinner"></view>
@@ -77,3 +85,15 @@
     </button>
   </view>
 </view>
+  <!-- 油价新闻详情弹窗 -->
+  <view class="modal-overlay" wx:if="{{showNewsModal}}" bind:tap="closeNewsPopup">
+    <view class="modal-content" catch:tap="">
+      <view class="modal-header">
+        <text class="modal-title">📢 今日油价最新消息</text>
+        <text class="modal-close" bind:tap="closeNewsPopup">✕</text>
+      </view>
+      <scroll-view class="modal-body" scroll-y>
+        <text class="modal-text">{{fullNews || news}}</text>
+      </scroll-view>
+    </view>
+  </view>

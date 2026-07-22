@@ -124,8 +124,10 @@
       <!-- 车主端：乘客列表 -->
       <view wx:if="{{isOwner}}" class="applicants-section">
         <view class="applicants-header" bind:tap="toggleApplicants">
-          <text>👥 同行乘客 ({{passengerCount}})</text>
-          <text class="toggle-icon">{{showApplicants ? '▲' : '▼'}}</text>
+          <view class="header-left">
+            <text>👥 同行乘客 ({{passengerCount}})</text>
+            <text wx:if="{{pendingCount > 0}}" class="pending-remind">🔔 {{pendingCount}}个待确认</text>
+          </view>
         </view>
         <view class="applicants-list" wx:if="{{showApplicants && trip.passengers && trip.passengers.length > 0}}">
                     <view class="applicant-item" wx:for="{{trip.passengers}}" wx:key="openid">
@@ -163,9 +165,11 @@
           </view>
 
         </view>
-      <button wx:if="{{isOwner && (trip.status === 'recruiting' || trip.status === 'full')}}" class="btn-primary" bind:tap="startTrip">🚀 确认发车</button>
-      <button wx:if="{{isOwner && (trip.status === 'recruiting' || trip.status === 'full')}}" class="btn-secondary" bind:tap="editSeats">🪑 修改座位数</button>
-      <button wx:if="{{isOwner}}" class="btn-danger" bind:tap="deleteTrip">🗑 删除行程</button>
+      <view class="owner-btn-group">
+      <button wx:if="{{isOwner && (trip.status === 'recruiting' || trip.status === 'full')}}" class="btn-primary btn-owner" bind:tap="startTrip">🚀 确认发车</button>
+      <button wx:if="{{isOwner && (trip.status === 'recruiting' || trip.status === 'full')}}" class="btn-secondary btn-owner" bind:tap="editSeats">🪑 修改座位数</button>
+      <button wx:if="{{isOwner}}" class="btn-danger btn-owner" bind:tap="deleteTrip">🗑 删除行程</button>
+      </view>
     </view>
     </view>
   </block>

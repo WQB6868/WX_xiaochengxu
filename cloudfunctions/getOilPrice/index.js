@@ -1,5 +1,6 @@
 ﻿const cloud = require("wx-server-sdk");
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
+const db = cloud.database();
 const https = require("https");
 const http = require("http");
 
@@ -69,6 +70,26 @@ async function sourceHuangjin(province) {
     timeStr = dateMatch[1] + "-" + dateMatch[2].padStart(2,"0") + "-" + dateMatch[3].padStart(2,"0");
   }
 
+  // 提取油价新闻内容
+  var news = "";
+  var newsStart = html.indexOf("今日油价最新消息：");
+  if (newsStart > -1) {
+    // 往前回溯最多20个字符，捕获日期前缀（如"2026年7月22日"）
+    var dateStart = newsStart;
+    for (var d = newsStart - 1; d >= newsStart - 20 && d >= 0; d--) {
+      if (html.charCodeAt(d) <= 32) { dateStart = d + 1; break; }
+      if (d === newsStart - 20 || d === 0) { dateStart = d; }
+    }
+    var snippet = html.substring(dateStart, newsStart + 500);
+    news = snippet.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+    var lastPeriod = news.lastIndexOf("\u3002");
+    if (lastPeriod > -1) {
+      news = news.substring(0, lastPeriod + 1);
+    }
+  }
+  if (!news || news.length < 10) {
+    news = "\u4eca\u65e5\u6cb9\u4ef7\u5df2\u66f4\u65b0\uff0c\u4ee5\u5b9e\u9645\u52a0\u6cb9\u7ad9\u4ef7\u683c\u4e3a\u51c6";
+  }
   // 定位全国油价表格（第二个 class="bx" 的 table）
   var firstTable = html.indexOf('<table class="bx"');
   if (firstTable === -1) return null;
@@ -107,7 +128,9 @@ async function sourceHuangjin(province) {
       p98: cleanValue(cells[2]),
       p0: cleanValue(cells[3]),
       time: timeStr,
-      source: "huangjin"
+      source: "huangjin",
+      news: news,
+      news: news
     };
   }
 
@@ -185,13 +208,60 @@ var FALLBACK = {
 
 // ============== 主函数 ==============
 exports.main = async function(event, context) {
+  // 检测是否为定时触发器调用（每日08:30），是则爬取全量省份
+  if (event.TriggerName === "dailyOilPriceUpdate" || event.Type === "timer") {
+    return await triggerDailyUpdate();
+  }
   var province = event.province || "广东";
+  var today = getTodayDate();
+  var forceRefresh = event.forceRefresh === true;
+
+  // 检查数据库缓存（除非强制刷新）
+  if (!forceRefresh) {
+    try {
+      var cached = await db.collection("oil_prices").where({
+        province: province,
+        date: today
+      }).get();
+      if (cached.data && cached.data.length > 0) {
+        var d = cached.data[0];
+        return {
+          code: 0,
+          data: {
+            p92: d.p92, p95: d.p95, p98: d.p98, p0: d.p0,
+            time: d.time || today,
+            source: d.source || "缓存",
+            news: d.news || ""
+          },
+          cached: true
+        };
+      }
+    } catch(e) {
+      console.error("cache check error:", e);
+    }
+  }
 
   // 首选：huangjinjiage.cn 网页爬虫（数据最新最全）
   try {
     var data = await sourceHuangjin(province);
     if (data && data.p92 !== "--") {
-      return { code: 0, data: data };
+      // 保存到数据库
+      try {
+        await db.collection("oil_prices").add({
+          data: {
+            province: province,
+            date: today,
+            p92: data.p92, p95: data.p95, p98: data.p98, p0: data.p0,
+            time: data.time || today,
+            source: data.source || "huangjin",
+            news: data.news || "",
+            updatedAt: db.serverDate()
+          }
+        });
+      } catch(e) {
+        console.error("save error:", e);
+      }
+      return { code: 0, data: data, cached: false };
     }
   } catch(e) {}
 
@@ -220,13 +290,67 @@ exports.main = async function(event, context) {
         p92: fallback.p92, p95: fallback.p95,
         p98: fallback.p98 || "--", p0: fallback.p0,
         time: getTodayDate(),
-        source: "参考价"
+        source: "参考价",
+        news: ""
       }
     };
   }
 
   return { code: 4001, message: "获取油价失败" };
 };
+
+// ============== 定时触发：爬取所有省份并缓存 ==============
+async function triggerDailyUpdate() {
+  var allProvinces = Object.keys(PAGE_PROVINCE_MAP);
+  var today = getTodayDate();
+  var results = { success: 0, fail: 0, errors: [] };
+
+  for (var i = 0; i < allProvinces.length; i++) {
+    var p = allProvinces[i];
+    try {
+      var data = await sourceHuangjin(p);
+      if (data && data.p92 !== "--") {
+        try {
+          // 先删除今日旧数据
+          await db.collection("oil_prices").where({
+            province: p,
+            date: today
+          }).remove();
+        } catch(e) { /* ignore */ }
+        // 保存新数据
+        try {
+          await db.collection("oil_prices").add({
+            data: {
+              province: p,
+              date: today,
+              p92: data.p92, p95: data.p95, p98: data.p98, p0: data.p0,
+              time: data.time || today,
+              source: data.source || "huangjin",
+              news: data.news || "",
+              updatedAt: db.serverDate()
+            }
+          });
+          results.success++;
+        } catch(e) {
+          results.errors.push(p + " save: " + e.message);
+          results.fail++;
+        }
+      } else {
+        results.errors.push(p + " no data");
+        results.fail++;
+      }
+    } catch(e) {
+      results.errors.push(p + " fetch: " + e.message);
+      results.fail++;
+    }
+  }
+
+  return {
+    code: 0,
+    message: "daily update completed",
+    results: results
+  };
+}
 
 function getTodayDate() {
   var d = new Date();
@@ -235,3 +359,4 @@ function getTodayDate() {
   var day = d.getDate().toString().padStart(2, "0");
   return y + "-" + m + "-" + day;
 }
+
