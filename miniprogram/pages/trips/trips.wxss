@@ -8,6 +8,9 @@
 .trip-item { margin-bottom: 16rpx; }
 .trip-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12rpx; }
 .trip-route { font-size: 30rpx; font-weight: 600; }
+/* 新消息提示 */
+.trip-route-wrap { display: flex; align-items: center; gap: 10rpx; flex: 1; min-width: 0; }
+.new-msg-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 32rpx; height: 32rpx; padding: 0 8rpx; background: #fa5151; color: #fff; font-size: 20rpx; font-weight: 600; border-radius: 16rpx; flex-shrink: 0; }
 .trip-status { font-size: 22rpx; padding: 4rpx 14rpx; border-radius: var(--radius-sm); }
 .status-recruiting { color: var(--color-primary); background: var(--color-primary-light); }
 .status-full { color: var(--color-orange); background: #fef3e7; }

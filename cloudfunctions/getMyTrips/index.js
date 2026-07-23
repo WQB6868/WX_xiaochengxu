@@ -54,6 +54,7 @@ exports.main = async function(event, context) {
         myRole: myRole,
         myStatus: myStatus,
         passengerCount: t.passengerCount,
+        pendingCount: (t.passengers || []).filter(function(p) { return p.status === 'pending'; }).length,
         vehicleInfo: t.vehicleInfo || {},
         createTime: t.createTime
       };

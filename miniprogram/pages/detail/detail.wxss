@@ -64,26 +64,34 @@
 .applicants-header { display: flex; justify-content: space-between; align-items: center; padding: 24rpx; font-size: 28rpx; font-weight: 600; color: #333; background: #f9f9f9; }
 .header-left { display: flex; flex-direction: column; gap: 4rpx; }
 .pending-remind { font-size: 22rpx; font-weight: 400; color: #fa5151; }
-.toggle-icon { font-size: 24rpx; color: #999; }
+.toggle-icon { font-size: 28rpx; color: #999; padding: 8rpx; }
 .applicants-list { padding: 0 24rpx 16rpx; }
-.applicant-item { padding: 20rpx 0; border-bottom: 2rpx solid #f0f0f0; display: flex; flex-direction: column; gap: 14rpx; }
+.applicant-item { padding: 20rpx 0; border-bottom: 2rpx solid #f0f0f0; }
 .applicant-item:last-child { border-bottom: none; }
 .applicant-top-row { display: flex; align-items: flex-start; width: 100%; }
 .applicant-avatar { width: 72rpx; height: 72rpx; border-radius: 50%; margin-right: 16rpx; flex-shrink: 0; margin-top: 4rpx; }
-.applicant-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4rpx; }
+.applicant-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8rpx; }
 .applicant-name-row { display: flex; align-items: center; gap: 10rpx; flex-wrap: wrap; }
 .applicant-name { font-size: 30rpx; font-weight: 600; color: #1a1a1a; }
-.applicant-phone { font-size: 24rpx; color: #07c160; }
-.applicant-phone.masked { color: #bbb !important; font-size: 22rpx !important; }
 .applicant-count { font-size: 22rpx; color: #fa9a3e; background: #fff8e1; padding: 2rpx 12rpx; border-radius: 12rpx; display: inline-block; }
 .applicant-status { font-size: 24rpx; }
-.applicant-actions { display: flex; gap: 10rpx; flex-wrap: wrap; padding-left: 88rpx; }
-.btn-confirm, .btn-reject { min-width: 80rpx; height: 52rpx; line-height: 52rpx; border-radius: 26rpx; font-size: 22rpx; padding: 0 16rpx; border: none; text-align: center; }
-.btn-confirm { background: #07c160; color: #fff; }
-.btn-confirm::after { border: none; }
-.btn-reject { background: #ffe8e8; color: #fa5151; }
-.btn-reject::after { border: none; }
-.applicants-empty { padding: 32rpx; text-align: center; font-size: 26rpx; color: #999; }
+.applicant-phone-row { display: flex; align-items: center; gap: 12rpx; padding-left: 0; }
+.applicant-phone-text { font-size: 26rpx; color: #07c160; font-weight: 500; }
+.applicant-phone-text.masked { color: #bbb !important; font-size: 24rpx !important; font-weight: 400 !important; }
+.btn-call-sm { min-width: 80rpx; height: 48rpx; line-height: 48rpx; border-radius: 24rpx; font-size: 22rpx; padding: 0 20rpx; background: #07c160; color: #fff; border: none; text-align: center; }
+.btn-call-sm::after { border: none; }
+.applicant-remark-row { padding: 4rpx 0; }
+.applicant-remark-text { font-size: 24rpx; color: #666; line-height: 1.5; }
+.applicant-actions-row { display: flex; gap: 12rpx; padding-top: 4rpx; }
+.btn-agree-sm { min-width: 100rpx; height: 52rpx; line-height: 52rpx; border-radius: 26rpx; font-size: 24rpx; padding: 0 24rpx; background: #07c160; color: #fff; border: none; text-align: center; }
+.btn-agree-sm::after { border: none; }
+.btn-reject-sm { min-width: 80rpx; height: 52rpx; line-height: 52rpx; border-radius: 26rpx; font-size: 24rpx; padding: 0 24rpx; background: #ffe8e8; color: #fa5151; border: none; text-align: center; }
+.btn-reject-sm::after { border: none; }
+.btn-confirm-sm { min-width: 100rpx; height: 52rpx; line-height: 52rpx; border-radius: 26rpx; font-size: 24rpx; padding: 0 24rpx; background: #07c160; color: #fff; border: none; text-align: center; }
+.btn-confirm-sm::after { border: none; }
+
+.confirmed-hint { font-size: 22rpx; color: #999; line-height: 48rpx; }
+.applicants-empty { padding: 32rpx; text-align: center; font-size: 26rpx; }
 
 /* Apply section - passenger form */
 .apply-section { margin-bottom: 24rpx; }

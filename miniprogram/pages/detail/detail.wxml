@@ -128,39 +128,49 @@
             <text>👥 同行乘客 ({{passengerCount}})</text>
             <text wx:if="{{pendingCount > 0}}" class="pending-remind">🔔 {{pendingCount}}个待确认</text>
           </view>
+          <text class="toggle-icon">{{showApplicants ? '▼' : '▶'}}</text>
         </view>
         <view class="applicants-list" wx:if="{{showApplicants && trip.passengers && trip.passengers.length > 0}}">
                     <view class="applicant-item" wx:for="{{trip.passengers}}" wx:key="openid">
             <view class="applicant-top-row">
               <image class="applicant-avatar" src="{{item.avatarUrl || '/assets/icons/default_avatar.png'}}" mode="aspectFill" />
               <view class="applicant-info">
+                <!-- 第1行：微信用户 + 人数 + 确认状态 -->
                 <view class="applicant-name-row">
                   <text class="applicant-name">{{item.nickname || '乘客'}}</text>
                   <text class="applicant-count" wx:if="{{item.passengerCount && item.passengerCount > 1}}">👥 {{item.passengerCount}}人</text>
+                  <text class="applicant-status status-{{item.status}}">
+                    <block wx:if="{{item.status === 'pending'}}">⏳ 等待确认</block>
+                    <block wx:elif="{{item.status === 'communicating'}}">📞 沟通中</block>
+                    <block wx:elif="{{item.status === 'confirmed'}}">✅ 已确认同行</block>
+                    <block wx:elif="{{item.status === 'rejected'}}">❌ 已拒绝</block>
+                  </text>
                 </view>
-                <text class="applicant-phone" wx:if="{{item.phone && (item.status === 'communicating' || item.status === 'confirmed')}}">☎ {{item.phone}}</text>
-                <text class="applicant-phone masked" wx:elif="{{item.phone && item.status === 'pending'}}">☎ {{item.maskedPhone}}</text>
-                <text class="applicant-status status-{{item.status}}">
-                  <block wx:if="{{item.status === 'pending'}}">⏳ 等待确认</block>
-                  <block wx:elif="{{item.status === 'communicating'}}">📞 沟通中</block>
-                  <block wx:elif="{{item.status === 'confirmed'}}">✅ 已确认同行</block>
-                  <block wx:elif="{{item.status === 'rejected'}}">❌ 已拒绝</block>
-                </text>
+                <!-- 第2行：电话号码 + 拨打按钮（同意沟通后显示完整号码+拨打按钮） -->
+                <view class="applicant-phone-row" wx:if="{{item.phone && (item.status === 'communicating' || item.status === 'confirmed')}}">
+                  <text class="applicant-phone-text">☎ {{item.phone}}</text>
+                  <button class="btn-call-sm" bind:tap="callPassenger" data-phone="{{item.phone}}">📞 拨打</button>
+                </view>
+                <view class="applicant-phone-row" wx:elif="{{item.maskedPhone && item.status === 'pending'}}">
+                  <text class="applicant-phone-text masked">☎ {{item.maskedPhone}}</text>
+                </view>
+                <!-- 第3行：备注信息 -->
+                <view class="applicant-remark-row" wx:if="{{item.remark}}">
+                  <text class="applicant-remark-text">📝 {{item.remark}}</text>
+                </view>
+                <!-- 第4行：操作按钮（水平放置） -->
+                <view class="applicant-actions-row" wx:if="{{item.status === 'pending'}}">
+                  <button class="btn-agree-sm" bind:tap="agreeToCommunicate" data-openid="{{item.openid}}">✅ 同意沟通</button>
+                  <button class="btn-reject-sm" bind:tap="rejectPassenger" data-openid="{{item.openid}}">拒绝</button>
+                </view>
+                <view class="applicant-actions-row" wx:elif="{{item.status === 'communicating'}}">
+                  <button class="btn-confirm-sm" bind:tap="confirmRideOwner" data-openid="{{item.openid}}">✅ 确认同行</button>
+                  <button class="btn-reject-sm" bind:tap="rejectPassenger" data-openid="{{item.openid}}">拒绝</button>
+                </view>
+                <view class="applicant-actions-row" wx:elif="{{item.status === 'confirmed'}}">
+                  <text class="confirmed-hint">✅ 已确认同行，可通过上方电话联系</text>
+                </view>
               </view>
-            </view>
-            <view class="applicant-actions">
-              <block wx:if="{{item.status === 'pending'}}">
-                <button class="btn-agree" bind:tap="agreeToCommunicate" data-openid="{{item.openid}}">📞 同意沟通</button>
-                <button class="btn-reject" bind:tap="rejectPassenger" data-openid="{{item.openid}}">拒绝</button>
-              </block>
-              <block wx:elif="{{item.status === 'communicating'}}">
-                <button class="btn-call" bind:tap="callPassenger" data-phone="{{item.phone}}">📞 拨打</button>
-                <button class="btn-confirm-sm" bind:tap="confirmRideOwner" data-openid="{{item.openid}}">✅ 确认同行</button>
-                <button class="btn-reject" bind:tap="rejectPassenger" data-openid="{{item.openid}}">拒绝</button>
-              </block>
-              <block wx:elif="{{item.status === 'confirmed'}}">
-                <button class="btn-call" bind:tap="callPassenger" data-phone="{{item.phone}}">📞 拨打</button>
-              </block>
             </view>
           </view>
 

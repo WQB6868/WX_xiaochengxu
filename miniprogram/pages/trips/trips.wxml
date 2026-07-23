@@ -68,7 +68,10 @@
       <block wx:else>
         <view bind:tap="goDetail" data-id="{{item._id}}">
           <view class="trip-header">
-            <text class="trip-route">{{item.from.city}} → {{item.to.city}}</text>
+            <view class="trip-route-wrap">
+              <text class="trip-route">{{item.from.city}} → {{item.to.city}}</text>
+              <text wx:if="{{item.pendingCount > 0}}" class="new-msg-badge">{{item.pendingCount}}</text>
+            </view>
             <text class="trip-status status-{{item.status}}">{{statusText(item.status)}}</text>
           </view>
           <view wx:if="{{item.myRole === 'passenger'}}" class="trip-my-status">
