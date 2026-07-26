@@ -42,6 +42,7 @@ exports.main = async function(event, context) {
       avatarUrl: userData.avatarUrl || "",
       phone: phone || userData.phone || "",
       passengerCount: passengerCount,
+      remark: event.remark || "",
       status: "pending",
       applyTime: db.serverDate(),
       agreeTime: null,

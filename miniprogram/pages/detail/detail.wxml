@@ -91,6 +91,10 @@
             <view class="stepper-btn" bind:tap="increaseCount">+</view>
           </view>
         </view>
+                  <view class="form-field">
+          <text class="form-label">备注信息</text>
+          <textarea class="form-textarea" placeholder="请填写备注信息（选填）" value="{{applyRemark}}" maxlength="200" bindinput="onRemarkInput" />
+        </view>
           <view class="privacy-row">
             <checkbox class="privacy-checkbox" checked="{{agreeChecked}}" bindtap="toggleAgree" />
             <text class="privacy-text">我已阅读并同意</text>

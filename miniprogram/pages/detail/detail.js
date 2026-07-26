@@ -12,7 +12,7 @@ Page({
     showApplicants: false, driverPhone: "",
     applyPhone: "", applyCount: 1,
     applyStatusText: "", applyStatusIcon: "", applyStatusClass: "",
-    applyPhoneDisplay: "", passengerCount: 0,
+    applyPhoneDisplay: "", applyRemark: "", passengerCount: 0,
     // Privacy agreement
     agreeChecked: false,
     // Application timestamps
@@ -231,6 +231,7 @@ Page({
   },
 
   // 提交申请
+  onRemarkInput: function(e) { this.setData({ applyRemark: e.detail.value }); },
   submitApply: function() {
     var that = this;
     // Check login
@@ -255,7 +256,8 @@ Page({
           api.callFunction("applyTrip", {
             tripId: that.data.tripId,
             phone: phone,
-            passengerCount: count
+            passengerCount: count,
+            remark: that.data.applyRemark
           }).then(function(res) {
             wx.hideLoading();
             wx.showToast({ title: "申请已发送，等待车主响应", icon: "success" });

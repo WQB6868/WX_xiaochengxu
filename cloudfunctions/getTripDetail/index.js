@@ -22,6 +22,7 @@ exports.main = async function(event, context) {
         applyTime: p.applyTime || null,
         agreeTime: p.agreeTime || null,
         confirmTime: p.confirmTime || null,
+        remark: p.remark || "",
       };
     });
     var fromData = typeof t.from === 'string' ? { city: t.from, district: '', address: '' } : t.from;
