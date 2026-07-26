@@ -129,8 +129,10 @@
 .form-input:focus { border-color: var(--color-primary); }
 
 .form-actions { padding: 30rpx 0 60rpx; }
+.form-actions-center { display: flex; justify-content: center; padding: 30rpx 0 60rpx; }
+.btn-publish { min-width: 400rpx; }
 
-/* ====== 求车模式专属样式 ====== */
+/* ====== 寻车模式专属样式 ====== */
 .request-intro {
   text-align: center;
   padding: 20rpx 0 30rpx;

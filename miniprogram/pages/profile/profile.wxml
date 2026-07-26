@@ -54,7 +54,7 @@
     </view>
     <view class="menu-item" bind:tap="showAbout">
       <text class="menu-icon">ℹ️</text>
-      <text class="menu-text">关于老乡同行</text>
+      <text class="menu-text">关于凑个车</text>
       <text class="menu-arrow">›</text>
     </view>
   </view>

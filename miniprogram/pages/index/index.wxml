@@ -122,8 +122,12 @@
           <text class="city-to" wx:elif="{{item.to}}">{{item.to}}</text>
           <text class="city-to" wx:else>?</text>
         </view>
+        <view class="card-row via-row" wx:if="{{item.viaPoints}}">
+          <text class="via-text">🔁 途经：{{item.viaPoints}}</text>
+        </view>
         <view class="card-row date-row">
           <text class="date-text">{{item._dateDisplay || item.departTime || "时间待定"}}</text>
+          <text class="time-detail-text" wx:if="{{item.departTimeDetail}}"> {{item.departTimeDetail}}</text>
         </view>
         <view class="card-row seats-row">
           <text class="seats-text">剩余 {{item.seats || 0}} 座</text>
@@ -141,8 +145,14 @@
           <text class="route-arrow">  →  </text>
           <text class="city-to">{{item._toCity}}</text>
         </view>
+        <view class="card-row via-row" wx:if="{{item.viaPoints}}">
+          <text class="via-text">🔁 途经：{{item.viaPoints}}</text>
+        </view>
         <view class="card-row date-row">
           <text class="date-text">{{item._dateDisplay}}</text>
+        </view>
+        <view class="card-row time-detail-row" wx:if="{{item.departTimeDetail}}">
+          <text class="time-detail-text">🕐 {{item.departTime}}: {{item.departTimeDetail}}</text>
         </view>
         <view class="card-row seats-row">
           <text class="seats-text">👥 {{item._passengers}}人 求同行</text>
@@ -171,7 +181,7 @@
     </view>
     <view class="fab fab-secondary" bind:tap="goRequest">
       <text class="fab-icon">🙋</text>
-      <text class="fab-text">求车</text>
+      <text class="fab-text">寻车</text>
     </view>
   </view>
 </view>

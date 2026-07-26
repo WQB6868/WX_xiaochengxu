@@ -36,12 +36,13 @@
           <text class="info-route">{{trip.from.city}} · {{trip.from.address}}</text>
           <text class="info-arrow">↓</text>
           <text class="info-route">{{trip.to.city}} · {{trip.to.address}}</text>
+          <text class="info-via" wx:if="{{trip.viaPoints}}">🔁 途经：{{trip.viaPoints}}</text>
         </view>
       </view>
       <view class="info-divider"></view>
       <view class="info-row">
         <text class="info-icon">📅</text>
-        <text class="info-text">{{dateDisplay}}</text>
+        <text class="info-text">{{dateDisplay}}<text wx:if="{{trip.departTimeDetail}}" class="time-detail-inline"> {{trip.departTimeDetail}}</text></text>
       </view>
       <view class="info-row">
         <text class="info-icon">🚗</text>

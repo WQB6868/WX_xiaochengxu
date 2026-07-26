@@ -21,6 +21,7 @@
 .status-confirmed { color: var(--color-primary); background: var(--color-primary-light); }
 
 /* 第二行：日期时间 */
+.trip-via { font-size: 22rpx; color: #999; margin-bottom: 6rpx; }
 .trip-date-time { font-size: 24rpx; color: var(--text-hint); margin-bottom: 8rpx; }
 
 /* 第三行：剩余座位 + 价格 */
@@ -44,7 +45,7 @@
 .my-status-tag.status-confirmed { color: var(--color-primary, #4caf50); background: var(--color-primary-light, #e8f5e9); }
 .my-status-tag.status-cancelled { color: var(--text-hint, #999); background: #f0f0f0; }
 .my-status-tag.status-rejected { color: var(--color-warning, #f44336); background: #fde8e8; }
-/* 求车信息状态 */
+/* 寻车信息状态 */
 .status-active { color: var(--color-primary, #4caf50); background: var(--color-primary-light, #e8f5e9); }
 .status-invited { color: var(--color-blue, #2196f3); background: #e3f2fd; }
 .status-confirmed { color: var(--color-primary, #4caf50); background: var(--color-primary-light, #e8f5e9); }

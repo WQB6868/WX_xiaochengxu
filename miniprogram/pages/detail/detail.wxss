@@ -78,6 +78,8 @@
 .form-textarea { width: 100%; min-height: 120rpx; padding: 16rpx; font-size: 26rpx; border: 2rpx solid #e0e0e0; border-radius: 12rpx; background: #fafafa; box-sizing: border-box; line-height: 1.6; }
 .form-textarea::placeholder { color: #bbb; }
 
+.info-via { font-size: 24rpx; color: #999; margin-top: 6rpx; display: block; }
+.time-detail-inline { font-weight: normal; color: #999; font-size: 24rpx; }
 .applicant-phone-row { display: flex; align-items: center; gap: 24rpx; padding-left: 0; }
 .applicant-phone-text { font-size: 26rpx; color: #07c160; font-weight: 500; }
 .applicant-phone-text.masked { color: #bbb !important; font-size: 24rpx !important; font-weight: 400 !important; }

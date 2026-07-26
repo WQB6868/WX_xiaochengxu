@@ -46,7 +46,7 @@ Page({
 
   showAbout: function() {
     wx.showModal({
-      title: "关于老乡同行",
+      title: "关于凑个车",
       content: "老乡同行 v1.0\n\n节假日私家车顺风车信息搭台平台。\n仅提供信息发布，不参与交易。\n\n安全提示：上车前请核对车主信息，分享行程给亲友。",
       showCancel: false
     });

@@ -1,11 +1,11 @@
 ﻿<scroll-view class="page-container" scroll-y enhanced>
-  <!-- 模式切换：发布车源 / 求车 -->
+  <!-- 模式切换：发布车源 / 寻车 -->
   <view class="mode-tabs">
     <view class="mode-tab {{mode === 'publish' ? 'active' : ''}}" bind:tap="switchMode" data-mode="publish">
       🚗 发布车源
     </view>
     <view class="mode-tab {{mode === 'request' ? 'active' : ''}}" bind:tap="switchMode" data-mode="request">
-      🙋 求车
+      🙋 寻车
     </view>
   </view>
 
@@ -43,6 +43,12 @@
       </view>
     </view>
 
+    <view class="form-section">
+      <text class="form-label">🔁 途径地点（可选）</text>
+      <input class="form-input" placeholder="输入途径地点，多个用逗号分隔"
+        value="{{form.viaPoints}}" bindinput="onInput" data-field="viaPoints" />
+    </view>
+
     <view class="form-row">
       <view class="form-section flex-1">
         <text class="form-label">📅 出发日期</text>
@@ -51,11 +57,18 @@
         </picker>
       </view>
       <view class="form-section flex-1" style="margin-left:20rpx;">
-        <text class="form-label">🕐 出发时间</text>
-        <picker mode="time" value="{{form.departTime}}" bindchange="onTimeChange">
-          <view class="picker-display {{form.departTime ? '' : 'placeholder'}}">{{form.departTime || '选择时间'}}</view>
+        <text class="form-label">🕐 出发时段</text>
+        <picker mode="selector" range="{{timeOptions}}" value="{{timeIndex}}" bindchange="onTimeChange">
+          <view class="picker-display {{timeIndex > -1 ? '' : 'placeholder'}}">{{timeOptions[timeIndex] || '选择'}}</view>
         </picker>
       </view>
+    </view>
+
+    <view class="form-section">
+      <text class="form-label">🕐 出发时间（选填）</text>
+      <picker mode="time" value="{{form.departTimeDetail}}" bindchange="onTimeDetailChange">
+        <view class="picker-display {{form.departTimeDetail ? '' : 'placeholder'}}">{{form.departTimeDetail || '选择具体时间'}}</view>
+      </picker>
     </view>
 
     <view class="form-row">
@@ -90,13 +103,7 @@
         value="{{form.contactPhone}}" bindinput="onInput" data-field="contactPhone" />
     </view>
 
-    <view class="form-section">
-      <text class="form-label">🏷 标签</text>
-      <view class="tags-group">
-        <view class="tag-select {{form.tags.indexOf(item) > -1 ? 'active' : ''}}"
-              wx:for="{{tagOptions}}" wx:key="*this" data-tag="{{item}}" bind:tap="toggleTag">{{item}}</view>
-      </view>
-    </view>
+
 
     <view class="form-section">
       <text class="form-label">📝 备注（可选）</text>
@@ -104,13 +111,13 @@
         value="{{form.remarks}}" bindinput="onInput" data-field="remarks" />
     </view>
 
-    <view class="form-actions safe-area-bottom">
-      <button class="btn-primary" bind:tap="submitPublish">🚗 确认发布车源</button>
+    <view class="form-actions-center safe-area-bottom">
+      <button class="btn-primary btn-publish" bind:tap="submitPublish">🚗 确认发布车源</button>
     </view>
 
   </block>
 
-  <!-- ====== 求车模式 ====== -->
+  <!-- ====== 寻车模式 ====== -->
   <block wx:elif="{{mode === 'request'}}">
     <view class="request-intro">
       <text class="request-icon">🙋</text>
@@ -178,7 +185,7 @@
     </view>
 
     <view class="form-actions safe-area-bottom">
-      <button class="btn-primary" bind:tap="submitRequest">🔍 发布求车信息</button>
+      <button class="btn-primary" bind:tap="submitRequest">🔍 发布寻车信息</button>
     </view>
 
       </block>

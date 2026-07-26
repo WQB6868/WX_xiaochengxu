@@ -95,6 +95,8 @@ exports.main = async function(event, context) {
         tags: t.tags || [],
         createTime: t.createTime,
         viewCount: t.viewCount || 0,
+        viaPoints: t.viaPoints || "",
+        departTimeDetail: t.departTimeDetail || "",
         applyCount: (t.passengers || []).length
       };
     });

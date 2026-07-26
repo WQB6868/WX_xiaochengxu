@@ -8,7 +8,7 @@
     </view>
 
     <view class="tab {{activeTab === 'request' ? 'active' : ''}}" data-tab="request" bind:tap="switchTab">
-      📋 我求车的
+      📋 我寻车的
     </view>  </view>
 
   <view class="status-filters" wx:if="{{activeTab !== 'request'}}">
@@ -31,7 +31,7 @@
           <text wx:else class="trip-status status-active">待确认</text>
         </view>
         <view class="trip-date-time">
-          <text>📅 {{item._dateDisplay}}</text>
+          <text>📅 {{item._dateDisplay}}<text wx:if="{{item.departTimeDetail}}" style="color:#999;font-weight:400"> {{item.departTimeDetail}}</text></text>
         </view>
         <view class="trip-seats">
           <text>👥 {{item.passengers}}人 求同行</text>
@@ -77,9 +77,10 @@
           <view wx:if="{{item.myRole === 'passenger'}}" class="trip-my-status">
             <text class="my-status-tag status-{{item.myStatus}}">{{myStatusText(item.myStatus)}}</text>
           </view>
+          <view class="trip-via" wx:if="{{item.viaPoints}}">🔁 途经：{{item.viaPoints}}</view>
 
           <view class="trip-date-time">
-            <text>📅 {{item._dateDisplay}}</text>
+            <text>📅 {{item._dateDisplay}}<text wx:if="{{item.departTimeDetail}}" style="color:#999;font-weight:400"> {{item.departTimeDetail}}</text></text>
           </view>
           <view class="trip-seats">
             <text>🪑 剩余 {{item.remainingSeats}} 座</text>

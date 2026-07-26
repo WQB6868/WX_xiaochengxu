@@ -10,10 +10,12 @@ Page({
     form: {
       fromAddress: "", fromProvince: "", fromCity: "", fromDistrict: "", fromLat: 0, fromLng: 0, fromDetail: "",
       toAddress: "", toProvince: "", toCity: "", toDistrict: "", toLat: 0, toLng: 0, toDetail: "",
-      departDate: "", departTime: "", seats: 2, price: 0, vehicleId: "", tags: [], remarks: "", contactPhone: "", requestPhone: "",
+      departDate: "", departTime: "", departTimeDetail: "", seats: 2, price: 0, vehicleId: "", tags: [], remarks: "", viaPoints: "", contactPhone: "", requestPhone: "",
       maxPrice: -1, passengers: 1
     },
     vehicleInfo: "",
+    timeOptions: ["全天", "上午", "下午", "晚上"],
+    timeIndex: -1,
     tagOptions: constants.TRIP_TAGS,
     today: (function() { var d = new Date(); return d.getFullYear() + "-" + ((d.getMonth()+1)<10?"0":"") + (d.getMonth()+1) + "-" + (d.getDate()<10?"0":"") + d.getDate(); })(),
     // request search fields removed
@@ -23,7 +25,7 @@ Page({
   onLoad: function(options) {
     var mode = (options && options.mode) || "publish";
     this.setData({ mode: mode });
-    wx.setNavigationBarTitle({ title: mode === "request" ? "求车" : "发布车源" });
+    wx.setNavigationBarTitle({ title: mode === "request" ? "寻车" : "发布车源" });
     if (mode === "publish") {
       auth.checkVerified().catch(function() {});
 
@@ -33,7 +35,7 @@ Page({
   switchMode: function(e) {
     var mode = e.currentTarget.dataset.mode;
     this.setData({ mode: mode });
-    wx.setNavigationBarTitle({ title: mode === "request" ? "求车" : "发布车源" });
+    wx.setNavigationBarTitle({ title: mode === "request" ? "寻车" : "发布车源" });
 
     if (mode === "request") {
       this.setData({  });
@@ -89,7 +91,11 @@ Page({
   },
 
   onDateChange: function(e) { this.setData({ "form.departDate": e.detail.value }); },
-  onTimeChange: function(e) { this.setData({ "form.departTime": e.detail.value }); },
+  onTimeChange: function(e) {
+    var idx = parseInt(e.detail.value);
+    var labels = ["全天", "上午", "下午", "晚上"];
+    this.setData({ timeIndex: idx, "form.departTime": labels[idx] });
+  },
 
   changeSeats: function(e) {
     var s = this.data.form.seats + parseInt(e.currentTarget.dataset.delta);
@@ -114,6 +120,8 @@ Page({
     if (idx > -1) tags.splice(idx,1); else tags.push(tag);
     this.setData({ "form.tags": tags });
   },
+
+  onTimeDetailChange: function(e) { this.setData({ "form.departTimeDetail": e.detail.value }); },
 
   selectVehicle: function() {
     var that = this;
@@ -156,7 +164,8 @@ Page({
                   address: form.toAddress + (form.toDetail ? " " + form.toDetail : ""),
                   latitude: form.toLat, longitude: form.toLng
                 },
-                departDate: form.departDate, departTime: form.departTime,
+                departDate: form.departDate, departTime: form.departTime, departTimeDetail: form.departTimeDetail,
+                viaPoints: form.viaPoints,
                 seats: form.seats, price: parseFloat(form.price) || 0,
                 vehicleId: form.vehicleId, tags: form.tags, remarks: form.remarks, contactPhone: form.contactPhone
               }).then(function() {
@@ -178,7 +187,8 @@ Page({
                   address: form.toAddress + (form.toDetail ? " " + form.toDetail : ""),
                   latitude: form.toLat, longitude: form.toLng
                 },
-                departDate: form.departDate, departTime: form.departTime,
+                departDate: form.departDate, departTime: form.departTime, departTimeDetail: form.departTimeDetail,
+                viaPoints: form.viaPoints,
                 seats: form.seats, price: parseFloat(form.price) || 0,
                 vehicleId: form.vehicleId, tags: form.tags, remarks: form.remarks, contactPhone: form.contactPhone
               }).then(function() {
@@ -226,7 +236,7 @@ Page({
       }
     }).then(function() {
       wx.hideLoading();
-      wx.showToast({ title: "求车信息已发布", icon: "success" });
+      wx.showToast({ title: "寻车信息已发布", icon: "success" });
       setTimeout(function() { wx.navigateBack(); }, 1500);
     }).catch(function(err) {
       console.warn("publishRequest direct write failed:", err);
@@ -240,7 +250,7 @@ Page({
         passengers: form.passengers, contactPhone: form.requestPhone,
         remarks: form.remarks
       }).then(function() {
-        wx.showToast({ title: "求车信息已发布", icon: "success" });
+        wx.showToast({ title: "寻车信息已发布", icon: "success" });
         setTimeout(function() { wx.navigateBack(); }, 1500);
       }).catch(function() {
         wx.showModal({

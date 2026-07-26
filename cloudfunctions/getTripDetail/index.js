@@ -38,6 +38,8 @@ exports.main = async function(event, context) {
         waypoints: t.waypoints || [],
         departDate: t.departDate,
         departTime: t.departTime,
+      viaPoints: t.viaPoints || "",
+      departTimeDetail: t.departTimeDetail || "",
         seats: t.seats,
         price: t.price,
         remainingSeats: t.seats - t.passengerCount,

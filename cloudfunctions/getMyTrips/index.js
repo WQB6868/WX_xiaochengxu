@@ -47,6 +47,8 @@ exports.main = async function(event, context) {
         from: { city: t.from.city, district: t.from.district, address: t.from.address },
         to: { city: t.to.city, district: t.to.district, address: t.to.address },
         departDate: t.departDate,
+      viaPoints: t.viaPoints || "",
+      departTimeDetail: t.departTimeDetail || "",
         departTime: t.departTime,
         seats: t.seats, remainingSeats: t.seats - t.passengerCount,
         price: t.price,
