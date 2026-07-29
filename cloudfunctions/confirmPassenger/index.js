@@ -46,6 +46,15 @@ exports.main = async function(event, context) {
           }
         });
       } catch(e) {}
+      // Update request status
+      try {
+        await db.collection("requests").where({
+          _openid: passengerId,
+          invitedTripId: tripId
+        }).update({
+          data: { status: "communicating", updateTime: db.serverDate() }
+        });
+      } catch(e) {}
       // Send notification
       try {
         var routeName = (t.from && t.from.city || "") + "→" + (t.to && t.to.city || "");
@@ -80,6 +89,15 @@ exports.main = async function(event, context) {
       }).update({
         data: { status: "confirmed", updateTime: db.serverDate() }
       });
+      // Update request status
+      try {
+        await db.collection("requests").where({
+          _openid: passengerId,
+          invitedTripId: tripId
+        }).update({
+          data: { status: "confirmed", updateTime: db.serverDate() }
+        });
+      } catch(e) {}
       // Send notification
       try {
         var routeName2 = (t.from && t.from.city || "") + "→" + (t.to && t.to.city || "");
@@ -107,6 +125,15 @@ exports.main = async function(event, context) {
       }).update({
         data: { status: "rejected", rejectReason: event.rejectReason || "", updateTime: db.serverDate() }
       });
+      // Update request status
+      try {
+        await db.collection("requests").where({
+          _openid: passengerId,
+          invitedTripId: tripId
+        }).update({
+          data: { status: "active", invitedTripId: "", updateTime: db.serverDate() }
+        });
+      } catch(e) {}
       // Send notification
       try {
         var routeName3 = (t.from && t.from.city || "") + "→" + (t.to && t.to.city || "");

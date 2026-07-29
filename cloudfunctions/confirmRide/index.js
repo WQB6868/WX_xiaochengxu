@@ -62,12 +62,30 @@ exports.main = async function(event, context) {
             data: { status: "confirmed", updateTime: db.serverDate() }
           });
         } catch(e) {}
+        // Update request status
+        try {
+          await db.collection("requests").where({
+            _openid: passengerOpenId,
+            invitedTripId: tripId
+          }).update({
+            data: { status: "confirmed", updateTime: db.serverDate() }
+          });
+        } catch(e) {}
       } else {
         passengers[idx].status = "rejected";
         passengers[idx].reason = event.rejectReason || "";
         await db.collection("trips").doc(tripId).update({
           data: { passengers: passengers }
         });
+        // Update request status
+        try {
+          await db.collection("requests").where({
+            _openid: passengerOpenId,
+            invitedTripId: tripId
+          }).update({
+            data: { status: "active", invitedTripId: "", updateTime: db.serverDate() }
+          });
+        } catch(e) {}
         // Send notification
         try {
           var routeName2 = (t.from && t.from.city || "") + "→" + (t.to && t.to.city || "");
@@ -93,6 +111,67 @@ exports.main = async function(event, context) {
         } catch(e) {}
       }
       return { code: 0, data: { status: action === "confirm" ? "confirmed" : "rejected" } };
+    }
+
+    // Passenger agrees to communicate (invited -> communicating)
+    if (action === "agree") {
+      var passengers = t.passengers || [];
+      var idx = passengers.findIndex(function(p) { return p._openid === OPENID; });
+      if (idx === -1) return { code: 1001, message: "???????" };
+      if (passengers[idx].status !== "invited") return { code: 1002, message: "?????????" };
+      passengers[idx].status = "communicating";
+      passengers[idx].agreeTime = db.serverDate();
+      await db.collection("trips").doc(tripId).update({
+        data: { passengers: passengers }
+      });
+      // Update request status
+      try {
+        await db.collection("requests").where({
+          _openid: OPENID,
+          invitedTripId: tripId
+        }).update({
+          data: { status: "communicating", updateTime: db.serverDate() }
+        });
+      } catch(e) {}
+      try {
+        await db.collection("applications").where({
+          tripId: tripId,
+          passengerOpenId: OPENID
+        }).update({
+          data: { status: "communicating", agreeTime: db.serverDate(), updateTime: db.serverDate() }
+        });
+      } catch(e) {}
+      return { code: 0, data: { status: "communicating" } };
+    }
+
+    // Passenger rejects invitation (invited -> rejected)
+    if (action === "reject") {
+      var passengers = t.passengers || [];
+      var idx = passengers.findIndex(function(p) { return p._openid === OPENID; });
+      if (idx === -1) return { code: 1001, message: "???????" };
+      if (passengers[idx].status !== "invited") return { code: 1002, message: "?????????" };
+      passengers[idx].status = "rejected";
+      passengers[idx].cancelTime = db.serverDate();
+      await db.collection("trips").doc(tripId).update({
+        data: { passengers: passengers }
+      });
+      try {
+        await db.collection("applications").where({
+          tripId: tripId,
+          passengerOpenId: OPENID
+        }).update({
+          data: { status: "rejected_by_passenger", updateTime: db.serverDate() }
+        });
+      } catch(e) {}
+      try {
+        await db.collection("requests").where({
+          _openid: OPENID,
+          invitedTripId: tripId
+        }).update({
+          data: { status: "active", invitedTripId: "", updateTime: db.serverDate() }
+        });
+      } catch(e) {}
+      return { code: 0, data: { status: "rejected" } };
     }
     
     // Passenger self-confirm (after owner agreed to communicate)

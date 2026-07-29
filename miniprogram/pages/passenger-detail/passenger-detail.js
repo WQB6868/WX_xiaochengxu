@@ -59,6 +59,13 @@ Page({
       }
 
       var myTrips = (tripsData && tripsData.list) || [];
+      myTrips = myTrips.map(function(t) {
+        try {
+          var dd = new Date(t.departDate);
+          t._dateDisplay = (dd.getMonth()+1) + "月" + dd.getDate() + "日" + (t.departTime ? " " + t.departTime : "");
+        } catch(e) { t._dateDisplay = t.departDate || ""; }
+        return t;
+      });
       var hasTrips = myTrips.length > 0;
       // Select first trip by default
       if (hasTrips) {

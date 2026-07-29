@@ -7,10 +7,20 @@
     <view class="contact-card" wx:if="{{driverPhone}}">
       <view class="contact-card-row">
         <text class="contact-card-label">车主手机</text>
-        <text class="contact-card-phone" wx:if="{{isOwner || applyStatus === 'communicating' || applyStatus === 'confirmed'}}">{{driverPhone}}</text>
+        <text class="contact-card-phone" wx:if="{{isOwner || applyStatus === 'communicating' || applyStatus === 'confirmed' || applyStatus === 'invited'}}">{{driverPhone}}</text>
         <text class="contact-card-phone masked" wx:else>{{maskedDriverPhone}}</text>
       </view>
-      <button class="contact-call-btn" wx:if="{{!isOwner && (applyStatus === 'communicating' || applyStatus === 'confirmed')}}" bind:tap="contactDriver">📞 拨打车主电话</button>
+      <!-- Two-button row for invited -->
+      <view class="contact-btn-row" wx:if="{{!isOwner && applyStatus === 'invited'}}">
+        <button class="contact-call-btn-half active" bind:tap="agreeToInvitation">💬 同意沟通</button>
+        <button class="contact-call-btn-half disabled">📞 拨打电话</button>
+      </view>
+      <!-- Two-button row for communicating (swapped) -->
+      <view class="contact-btn-row" wx:if="{{!isOwner && applyStatus === 'communicating'}}">
+        <button class="contact-call-btn-half disabled" style="opacity:0.6;">✅ 已同意</button>
+        <button class="contact-call-btn-half active" bind:tap="contactDriver">📞 拨打电话</button>
+      </view>
+      <button class="contact-call-btn" wx:if="{{!isOwner && applyStatus === 'confirmed'}}" bind:tap="contactDriver">📞 拨打车主电话</button>
       <button class="contact-call-btn disabled" wx:elif="{{!isOwner && !hasApplied}}">请先申请同行</button>
       <button class="contact-call-btn disabled" wx:elif="{{!isOwner && applyStatus === 'pending'}}">等待车主同意</button>
     </view>
@@ -131,7 +141,11 @@
         <view class="applicants-header" bind:tap="toggleApplicants">
           <view class="header-left">
             <text>👥 同行乘客 ({{passengerCount}})</text>
-            <text wx:if="{{pendingCount > 0}}" class="pending-remind">🔔 {{pendingCount}}个待确认</text>
+            <view class="status-hints" wx:if="{{isOwner && (pendingCount > 0 || communicatingCount > 0 || invitedCount > 0)}}">
+              <text wx:if="{{invitedCount > 0}}" class="status-hint hint-invited">📩 {{invitedCount}}个待回应</text>
+              <text wx:if="{{pendingCount > 0}}" class="status-hint hint-pending">⏳ {{pendingCount}}个待同意沟通</text>
+              <text wx:if="{{communicatingCount > 0}}" class="status-hint hint-communicating">✅ {{communicatingCount}}个待确认同行</text>
+            </view>
           </view>
           <text class="toggle-icon">{{showApplicants ? '▼' : '▶'}}</text>
         </view>
@@ -148,6 +162,7 @@
                     <block wx:if="{{item.status === 'pending'}}">⏳ 等待确认</block>
                     <block wx:elif="{{item.status === 'communicating'}}">📞 沟通中</block>
                     <block wx:elif="{{item.status === 'confirmed'}}">✅ 已确认同行</block>
+                    <block wx:elif="{{item.status === 'invited'}}">📩 已邀请，等待对方回应</block>
                     <block wx:elif="{{item.status === 'rejected'}}">❌ 已拒绝</block>
                   </text>
                 </view>
@@ -156,7 +171,7 @@
                   <text class="applicant-phone-text">☎ {{item.phone}}</text>
                   <button class="btn-call-sm" bind:tap="callPassenger" data-phone="{{item.phone}}">📞 拨打</button>
                 </view>
-                <view class="applicant-phone-row" wx:elif="{{item.maskedPhone && item.status === 'pending'}}">
+                <view class="applicant-phone-row" wx:elif="{{item.maskedPhone && (item.status === 'pending' || item.status === 'invited')}}">
                   <text class="applicant-phone-text masked">☎ {{item.maskedPhone}}</text>
                 </view>
                 <!-- 第3行：备注信息 -->
@@ -180,6 +195,11 @@
           </view>
 
         </view>
+      <!-- Invited passenger actions (after agreeing to communicate) -->
+      <view class="invited-actions" wx:if="{{!isOwner && applyStatus === 'communicating'}}">
+        <button class="btn-primary btn-owner" bind:tap="confirmRideAsPassenger">✅ 确认同行</button>
+        <button class="btn-danger btn-owner" bind:tap="rejectInvitation">❌ 拒绝</button>
+      </view>
       <view class="owner-btn-group">
       <button wx:if="{{isOwner && (trip.status === 'recruiting' || trip.status === 'full')}}" class="btn-primary btn-owner" bind:tap="startTrip">🚀 确认发车</button>
       <button wx:if="{{isOwner && (trip.status === 'recruiting' || trip.status === 'full')}}" class="btn-secondary btn-owner" bind:tap="editSeats">🪑 修改座位数</button>

@@ -1,4 +1,4 @@
-﻿var api = require("../../utils/api");
+﻿﻿var api = require("../../utils/api");
 var constants = require("../../utils/constants");
 var timeUtil = require("../../utils/time");
 
@@ -6,7 +6,7 @@ Page({
   data: {
     trip: null, tripId: "", loading: true,
     isOwner: false, hasApplied: false, applyStatus: "",
-    myConfirm: false, pendingCount: 0,
+    myConfirm: false, pendingCount: 0, communicatingCount: 0, invitedCount: 0,
     hasCoords: false, markers: [],
     dateDisplay: "", vehicleDisplay: "", priceDisplay: "",
     showApplicants: false, driverPhone: "",
@@ -45,7 +45,9 @@ Page({
         myConfirm = myEntry.status === "confirmed";
       }
 
-      var pendingCount = (data.passengers || []).filter(function(p) { return p.status === "pending"; }).length;
+      var pendingCount = (data.passengers || []).filter(function(p) { return p.status === "pending"; }).length
+      var communicatingCount = (data.passengers || []).filter(function(p) { return p.status === "communicating"; }).length
+      var invitedCount = (data.passengers || []).filter(function(p) { return p.status === "invited"; }).length;
       var hasCoords = data.from && data.from.latitude && data.from.longitude;
       var markers = hasCoords ? [{ id: 0, latitude: data.from.latitude, longitude: data.from.longitude, iconPath: "/assets/icons/marker.png", width: 32, height: 32 }] : [];
 
@@ -81,10 +83,13 @@ Page({
           applyStatusIcon = "✅";
           applyStatusClass = "confirmed";
         } else if (myEntry.status === "rejected") {
-          applyStatusText = "车主已拒绝您的申请";
+          applyStatusText = "📩 车主已邀请您同行";
           applyStatusIcon = "❌";
           applyStatusClass = "rejected";
-        } else if (myEntry.status === "cancelled") {
+                } else if (myEntry.status === "invited") {
+          applyStatusText = "📩 车主已邀请您同行";
+          applyStatusIcon = "📩";
+          applyStatusClass = "invited";} else if (myEntry.status === "cancelled") {
           applyStatusText = "已取消申请";
           applyStatusIcon = "📪";
           applyStatusClass = "cancelled";
@@ -102,7 +107,7 @@ Page({
         trip: data, isOwner: isOwner,
         hasApplied: hasApplied, applyStatus: applyStatus,
         myConfirm: myConfirm,
-        pendingCount: pendingCount,
+        pendingCount: pendingCount, communicatingCount: communicatingCount, invitedCount: invitedCount,
         hasCoords: hasCoords, markers: markers,
         dateDisplay: dateDisplay, vehicleDisplay: vehicleDisplay,
         priceDisplay: priceDisplay, driverPhone: driverPhone,
@@ -541,6 +546,80 @@ Page({
   rateTrip: function() {
     wx.showToast({ title: "评价功能开发中", icon: "none" });
   },
+  // Invited passenger: agree to communicate
+  agreeToInvitation: function() {
+    var that = this;
+    wx.showModal({
+      title: "同意沟通",
+      content: "同意与车主沟通？同意后您的联系方式将对车主可见",
+      success: function(res) {
+        if (res.confirm) {
+          wx.showLoading({ title: "???...", mask: true });
+          api.callFunction("confirmRide", {
+            tripId: that.data.tripId,
+            action: "agree"
+          }).then(function() {
+            wx.hideLoading();
+            wx.showToast({ title: "?????", icon: "success" });
+            that.loadDetail();
+          }).catch(function(err) {
+            wx.hideLoading();
+            wx.showToast({ title: (err && err.message) || "????", icon: "none" });
+          });
+        }
+      }
+    });
+  },
+
+  // Invited passenger: reject invitation
+  rejectInvitation: function() {
+    var that = this;
+    wx.showModal({
+      title: "拒绝同行",
+      content: "确定拒绝该车主的邀请吗？",
+      success: function(res) {
+        if (res.confirm) {
+          wx.showLoading({ title: "???...", mask: true });
+          api.callFunction("confirmRide", {
+            tripId: that.data.tripId,
+            action: "reject"
+          }).then(function() {
+            wx.hideLoading();
+            wx.showToast({ title: "???", icon: "success" });
+            that.loadDetail();
+          }).catch(function(err) {
+            wx.hideLoading();
+            wx.showToast({ title: (err && err.message) || "????", icon: "none" });
+          });
+        }
+      }
+    });
+  },
+
+  // Invited passenger: confirm ride
+  confirmRideAsPassenger: function() {
+    var that = this;
+    wx.showModal({
+      title: "确认同行",
+      content: "确认与车主同行吗？",
+      success: function(res) {
+        if (res.confirm) {
+          wx.showLoading({ title: "???...", mask: true });
+          api.callFunction("confirmRide", {
+            tripId: that.data.tripId
+          }).then(function() {
+            wx.hideLoading();
+            wx.showToast({ title: "?????", icon: "success" });
+            that.loadDetail();
+          }).catch(function(err) {
+            wx.hideLoading();
+            wx.showToast({ title: (err && err.message) || "????", icon: "none" });
+          });
+        }
+      }
+    });
+  },
+
   callPassenger: function(e) {
     var phone = e.currentTarget.dataset.phone;
     if (phone) {

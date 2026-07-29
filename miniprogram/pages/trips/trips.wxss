@@ -1,6 +1,9 @@
 .tabs { display: flex; background: #fff; border-radius: var(--radius-lg); padding: 8rpx; margin-bottom: 20rpx; box-shadow: var(--shadow-card); }
 .tab { flex: 1; text-align: center; padding: 16rpx; border-radius: var(--radius-md); font-size: 28rpx; color: var(--text-secondary); }
 .tab.active { background: var(--color-primary); color: #fff; font-weight: 500; }
+/* Tab notification badge */
+.tab-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 28rpx; height: 28rpx; padding: 0 8rpx; margin-left: 4rpx; background: #fa5151; color: #fff; font-size: 18rpx; font-weight: 600; border-radius: 14rpx; vertical-align: middle; }
+
 .status-filters { display: flex; gap: 12rpx; margin-bottom: 20rpx; flex-wrap: wrap; }
 .status-filter { padding: 8rpx 20rpx; border-radius: var(--radius-round); font-size: 22rpx; background: #fff; box-shadow: var(--shadow-card); color: var(--text-secondary); }
 .status-filter.active { background: var(--color-primary-light); color: var(--color-primary); }
@@ -11,6 +14,7 @@
 /* 新消息提示 */
 .trip-route-wrap { display: flex; align-items: center; gap: 10rpx; flex: 1; min-width: 0; }
 .new-msg-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 32rpx; height: 32rpx; padding: 0 8rpx; background: #fa5151; color: #fff; font-size: 20rpx; font-weight: 600; border-radius: 16rpx; flex-shrink: 0; }
+.new-invite-badge { display: inline-flex; align-items: center; justify-content: center; padding: 2rpx 12rpx; background: #2196f3; color: #fff; font-size: 20rpx; font-weight: 600; border-radius: 16rpx; flex-shrink: 0; }
 .trip-status { font-size: 22rpx; padding: 4rpx 14rpx; border-radius: var(--radius-sm); }
 .status-recruiting { color: var(--color-primary); background: var(--color-primary-light); }
 .status-full { color: var(--color-orange); background: #fef3e7; }

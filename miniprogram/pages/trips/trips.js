@@ -3,7 +3,7 @@ var timeUtil = require("../../utils/time");
 var constants = require("../../utils/constants");
 
 Page({
-  data: { activeTab: "driver", activeStatus: "", tripList: [], page: 1, pageSize: 20, hasMore: false, loadingMore: false, initialLoading: true,
+  data: { activeTab: "driver", activeStatus: "", tripList: [], page: 1, pageSize: 20, hasMore: false, loadingMore: false, initialLoading: true, driverBadge: 0, passengerBadge: 0,
     pendingPhoneRequests: [], showPhoneApproval: false, currentApprovalRequestId: "" },
   onLoad: function() { this.loadTrips(true); },
   onShow: function() { this.loadTrips(true); },
@@ -35,7 +35,9 @@ Page({
           }).catch(function() { return { list: [], total: 0, hasMore: false }; });
       };
       loadRequests().then(function(data) {
-        that.setData({ tripList: data.list, page: page, hasMore: data.hasMore, initialLoading: false });
+        that.setData({ tripList: data.list, page: page, hasMore: data.hasMore, initialLoading: false, driverBadge: that.data.driverBadge, passengerBadge: that.data.passengerBadge });
+        // Also refresh badges for non-active tab
+        that.refreshOtherBadge();
         wx.stopPullDownRefresh();
         // Load pending phone view requests for approval
         that.loadPendingPhoneRequests();
@@ -55,8 +57,16 @@ Page({
           return item.myStatus !== "cancelled" && item.myStatus !== "rejected";
         });
       }
-      if (refresh) { that.setData({ tripList: list, page: page, hasMore: data.hasMore, initialLoading: false }); }
-      else { that.setData({ tripList: that.data.tripList.concat(list), page: page, hasMore: data.hasMore }); }
+      // Compute tab badges
+      var driverBadge = 0, passengerBadge = 0;
+      if (that.data.activeTab === "driver") {
+        driverBadge = list.reduce(function(sum, item) { return sum + (item.pendingCount || 0); }, 0);
+      } else if (that.data.activeTab === "passenger") {
+        passengerBadge = list.filter(function(item) { return item.myStatus === "invited"; }).length;
+      }
+      if (refresh) { that.setData({ tripList: list, page: page, hasMore: data.hasMore, initialLoading: false, driverBadge: driverBadge, passengerBadge: passengerBadge });
+        that.refreshOtherBadge(); }
+      else { that.setData({ tripList: that.data.tripList.concat(list), page: page, hasMore: data.hasMore, driverBadge: driverBadge, passengerBadge: passengerBadge }); }
       wx.stopPullDownRefresh();
     }).catch(function() { that.setData({ initialLoading: false }); wx.stopPullDownRefresh(); });
   },
@@ -212,8 +222,25 @@ Page({
       }
     });
   },
+    // Refresh badge for the non-active tab
+  refreshOtherBadge: function() {
+    var that = this;
+    var otherRole = this.data.activeTab === "driver" ? "passenger" : "driver";
+    api.callFunction("getMyTrips", { role: otherRole, page: 1, pageSize: 50 }).then(function(data) {
+      var list = data.list || [];
+      var badge = 0;
+      if (otherRole === "passenger") {
+        badge = list.filter(function(item) { return item.myStatus === "invited"; }).length;
+        that.setData({ passengerBadge: badge });
+      } else {
+        badge = list.reduce(function(sum, item) { return sum + (item.pendingCount || 0); }, 0);
+        that.setData({ driverBadge: badge });
+      }
+    }).catch(function() {});
+  },
+
   requestStatusText: function(s) {
-    var map = { "active": "待确认", "invited": "已邀请", "confirmed": "已确认", "cancelled": "已取消" };
+    var map = { "active": "待确认", "invited": "已邀请", "communicating": "沟通中", "confirmed": "已确认", "cancelled": "已取消" };
     return map[s] || s;
   },
 });

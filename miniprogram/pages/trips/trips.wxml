@@ -2,9 +2,12 @@
   <view class="tabs">
     <view class="tab {{activeTab === 'driver' ? 'active' : ''}}" data-tab="driver" bind:tap="switchTab">
       🚗 我发布的
+      <text class="tab-badge" wx:if="{{driverBadge > 0}}">{{driverBadge}}</text>
     </view>
     <view class="tab {{activeTab === 'passenger' ? 'active' : ''}}" data-tab="passenger" bind:tap="switchTab">
       🙋 我申请的
+      <text class="tab-badge" wx:if="{{passengerBadge > 0}}">{{passengerBadge}}</text>
+
     </view>
 
     <view class="tab {{activeTab === 'request' ? 'active' : ''}}" data-tab="request" bind:tap="switchTab">
@@ -14,7 +17,6 @@
   <view class="status-filters" wx:if="{{activeTab !== 'request'}}">
     <view class="status-filter {{activeStatus === '' ? 'active' : ''}}" data-status="" bind:tap="filterStatus">全部</view>
     <view class="status-filter {{activeStatus === 'recruiting' ? 'active' : ''}}" data-status="recruiting" bind:tap="filterStatus">招募中</view>
-    <view class="status-filter {{activeStatus === 'departed' ? 'active' : ''}}" data-status="departed" bind:tap="filterStatus">已出发</view>
     <view class="status-filter {{activeStatus === 'completed' ? 'active' : ''}}" data-status="completed" bind:tap="filterStatus">已完成</view>
   </view>
 
@@ -26,7 +28,9 @@
           <text class="trip-route">{{item.fromCity}} → {{item.toCity}}</text>
           <text wx:if="{{item.status === 'active'}}" class="trip-status status-active">待确认</text>
           <text wx:elif="{{item.status === 'invited'}}" class="trip-status status-invited">已邀请</text>
+          <text wx:elif="{{item.status === 'communicating'}}" class="trip-status status-invited">沟通中</text>
           <text wx:elif="{{item.status === 'confirmed'}}" class="trip-status status-confirmed">已确认</text>
+          <text wx:elif="{{item.status === 'rejected'}}" class="trip-status status-cancelled">已拒绝</text>
           <text wx:elif="{{item.status === 'cancelled'}}" class="trip-status status-cancelled">已取消</text>
           <text wx:else class="trip-status status-active">待确认</text>
         </view>
@@ -70,7 +74,8 @@
           <view class="trip-header">
             <view class="trip-route-wrap">
               <text class="trip-route">{{item.from.city}} → {{item.to.city}}</text>
-              <text wx:if="{{item.pendingCount > 0}}" class="new-msg-badge">{{item.pendingCount}}</text>
+              <text wx:if="{{item.myRole === 'passenger' && item.myStatus === 'invited'}}" class="new-invite-badge">📩 新邀请</text>
+              <text wx:elif="{{item.pendingCount > 0}}" class="new-msg-badge">{{item.pendingCount}}</text>
             </view>
             <text class="trip-status status-{{item.status}}">{{statusText(item.status)}}</text>
           </view>
@@ -87,11 +92,8 @@
             <text class="trip-price">{{formatPrice(item.price)}}</text>
           </view>
         </view>
-        <view wx:if="{{item.myRole === 'passenger' && item.myStatus === 'invited'}}" class="trip-actions">
-          <button class="btn-confirm" catch:tap="confirmInvite" data-id="{{item._id}}">确认同行</button>
-          <button class="btn-reject" catch:tap="cancelApplication" data-id="{{item._id}}">拒绝</button>
-        </view>
-        <view wx:elif="{{item.myRole === 'passenger' && item.myStatus === 'confirmed'}}" class="trip-actions">
+        
+        <view wx:if="{{item.myRole === 'passenger' && item.myStatus === 'confirmed'}}" class="trip-actions">
           <button class="btn-cancel" catch:tap="cancelApplication" data-id="{{item._id}}">取消申请</button>
         </view>
       </block>

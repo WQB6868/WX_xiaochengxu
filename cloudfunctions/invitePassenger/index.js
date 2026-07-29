@@ -30,7 +30,7 @@ exports.main = async function(event, context) {
 
     // Check if passenger already exists
     var existing = (t.passengers || []).find(function(p) {
-      return p._openid === passengerOpenId && p.status !== "cancelled";
+      return p._openid === passengerOpenId && p.status !== "cancelled" && p.status !== "rejected";
     });
     if (existing) return { code: 3001, message: "该乘客已在行程中" };
 
@@ -48,7 +48,7 @@ exports.main = async function(event, context) {
         // Check for existing cancelled entry and update it, or add new
     var passengers = t.passengers || [];
     var existingCancel = passengers.findIndex(function(p) {
-      return p._openid === passengerOpenId && p.status === "cancelled";
+      return p._openid === passengerOpenId && p.status === "cancelled" || p.status === "rejected";
     });
     
     if (existingCancel >= 0) {

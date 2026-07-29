@@ -156,7 +156,7 @@
       </view>
       <view class="form-section flex-1" style="margin-left:20rpx;">
         <text class="form-label">🕐 出行时间</text>
-        <picker mode="time" value="{{form.departTime}}" bindchange="onTimeChange">
+        <picker mode="time" value="{{form.departTime}}" bindchange="onRequestTimeChange">
           <view class="picker-display {{form.departTime ? '' : 'placeholder'}}">{{form.departTime || '选择时间'}}</view>
         </picker>
       </view>

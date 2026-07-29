@@ -123,6 +123,10 @@ Page({
 
   onTimeDetailChange: function(e) { this.setData({ "form.departTimeDetail": e.detail.value }); },
 
+  onRequestTimeChange: function(e) {
+    this.setData({ "form.departTime": e.detail.value });
+  },
+
   selectVehicle: function() {
     var that = this;
     wx.navigateTo({
