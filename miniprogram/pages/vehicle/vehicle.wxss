@@ -9,3 +9,14 @@
 .action-btn { font-size: 26rpx; color: var(--color-blue); }
 .action-btn.delete { color: var(--color-warning); }
 .add-card { margin-top: 20rpx; }
+
+.form-input.seats-input { text-align: left !important; }
+
+.btn-center-wrap { display: flex; justify-content: center; margin-top: 20rpx; }
+.btn-save { width: auto; min-width: 300rpx; }
+
+/* ===== Form Layout (local override) ===== */
+.form-section { margin-bottom: 30rpx; }
+.form-row { display: flex; flex-direction: row; margin-bottom: 10rpx; }
+.flex-1 { flex: 1; }
+.form-label { font-size: 28rpx; font-weight: 500; margin-bottom: 16rpx; display: block; }

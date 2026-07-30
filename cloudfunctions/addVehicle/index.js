@@ -1,11 +1,11 @@
-﻿const cloud = require("wx-server-sdk");
+const cloud = require("wx-server-sdk");
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
 exports.main = async function(event, context) {
   const { OPENID } = cloud.getWXContext();
   try {
     var data = event;
-    if (!data.brand || !data.model || !data.plateNumber) {
+    if (!data.brand || !data.model) {
       return { code: 1001, message: "请填写完整信息" };
     }
     // Check if this is the first vehicle
@@ -17,7 +17,7 @@ exports.main = async function(event, context) {
         model: data.model,
         color: data.color || "",
         plateNumber: data.plateNumber,
-        seats: parseInt(data.seats) || 4,
+        seats: parseInt(data.seats) || 5,
         photos: [],
         isDefault: count.total === 0,
         status: "active",

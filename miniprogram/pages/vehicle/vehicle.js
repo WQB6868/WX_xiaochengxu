@@ -1,6 +1,6 @@
 var api = require("../../utils/api");
 Page({
-  data: { vehicles: [], selectMode: false, loading: true, form: { brand: "", model: "", color: "", seats: 4, plateNumber: "" } },
+  data: { vehicles: [], selectMode: false, loading: true, form: { brand: "", model: "", color: "", seats: 5, plateNumber: "" } },
   onLoad: function(options) { if (options.select === "1") this.setData({ selectMode: true }); this.loadVehicles(); },
   loadVehicles: function() {
     var that = this;
@@ -9,9 +9,9 @@ Page({
   onFormInput: function(e) { var obj = {}; obj["form." + e.currentTarget.dataset.field] = e.detail.value; this.setData(obj); },
   addVehicle: function() {
     var that = this; var form = this.data.form;
-    if (!form.brand || !form.model || !form.plateNumber) { wx.showToast({ title: "请填写完整信息", icon: "none" }); return; }
+    if (!form.brand || !form.model) { wx.showToast({ title: "请填写完整信息", icon: "none" }); return; }
     wx.showLoading({ title: "保存中...", mask: true });
-    wx.cloud.callFunction({ name: "addVehicle", data: { brand: form.brand, model: form.model, color: form.color || "", plateNumber: form.plateNumber, seats: parseInt(form.seats) || 4 } }).then(function() { wx.hideLoading(); wx.showToast({ title: "添加成功", icon: "success" }); that.setData({ form: { brand: "", model: "", color: "", seats: 4, plateNumber: "" } }); that.loadVehicles(); }).catch(function(err) { wx.hideLoading(); wx.showToast({ title: (err && err.errMsg) || "添加失败", icon: "none" }); });
+    wx.cloud.callFunction({ name: "addVehicle", data: { brand: form.brand, model: form.model, color: form.color || "", plateNumber: form.plateNumber, seats: parseInt(form.seats) || 5 } }).then(function(res) { wx.hideLoading(); if (res.result && res.result.code === 0) { wx.showToast({ title: "添加成功", icon: "success" }); that.setData({ form: { brand: "", model: "", color: "", seats: 5, plateNumber: "" } }); that.loadVehicles(); } else { wx.showToast({ title: (res.result && res.result.message) || "添加失败", icon: "none" }); } }).catch(function(err) { wx.hideLoading(); wx.showToast({ title: (err && err.errMsg) || "添加失败", icon: "none" }); });
   },
   selectVehicle: function(e) { if (!this.data.selectMode) return; var item = e.currentTarget.dataset.item; var ec = this.getOpenerEventChannel(); if (ec) ec.emit("acceptData", item); wx.navigateBack(); },
   setDefault: function(e) {

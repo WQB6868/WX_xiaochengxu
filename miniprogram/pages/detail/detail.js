@@ -1,4 +1,4 @@
-﻿﻿var api = require("../../utils/api");
+var api = require("../../utils/api");
 var constants = require("../../utils/constants");
 var timeUtil = require("../../utils/time");
 
@@ -56,7 +56,7 @@ Page({
 
       var v = data.vehicleInfo || {};
       var vehicleDisplay = [v.brand, v.model, v.color, v.plateNumber].filter(Boolean).join(" · ") || "未填写";
-      var priceDisplay = data.price > 0 ? "¥" + data.price + "/人" : "免费";
+      var priceDisplay = data.price > 0 ? "¥" + data.price + "/人" : "商讨";
       var driverPhone = data.contactPhone || (data.driver && data.driver.phone) || "";
 
       // Set apply status display

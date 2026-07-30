@@ -1,11 +1,11 @@
-﻿<scroll-view class="page-container" scroll-y enhanced>
-  <!-- 模式切换：发布车源 / 寻车 -->
+<scroll-view class="page-container" scroll-y enhanced>
+  <!-- 模式切换：发布车源 / 发布寻车 -->
   <view class="mode-tabs">
     <view class="mode-tab {{mode === 'publish' ? 'active' : ''}}" bind:tap="switchMode" data-mode="publish">
       🚗 发布车源
     </view>
     <view class="mode-tab {{mode === 'request' ? 'active' : ''}}" bind:tap="switchMode" data-mode="request">
-      🙋 寻车
+      🙋 发布寻车
     </view>
   </view>
 
@@ -22,7 +22,7 @@
       </view>
       <view class="location-detail" wx:if="{{form.fromAddress}}">
         <text class="detail-label">详细地址</text>
-        <input class="form-input" placeholder="小区名/门牌号等"
+        <input class="form-input" placeholder="县、区、乡镇等"
           value="{{form.fromDetail}}" bindinput="onInput" data-field="fromDetail" />
       </view>
     </view>
@@ -38,7 +38,7 @@
       </view>
       <view class="location-detail" wx:if="{{form.toAddress}}">
         <text class="detail-label">详细地址</text>
-        <input class="form-input" placeholder="小区名/门牌号等"
+        <input class="form-input" placeholder="县、区、乡镇等"
           value="{{form.toDetail}}" bindinput="onInput" data-field="toDetail" />
       </view>
     </view>
@@ -82,7 +82,7 @@
       </view>
       <view class="form-section flex-1" style="margin-left:20rpx;">
         <text class="form-label">💰 费用（元/人）</text>
-        <input class="form-input" type="digit" placeholder="0 表示免费"
+        <input class="form-input" type="digit" placeholder="商讨（价格选填）"
           value="{{form.price}}" bindinput="onInput" data-field="price" />
       </view>
     </view>
@@ -90,9 +90,9 @@
     <view class="form-section">
       <text class="form-label">🚗 车辆信息</text>
       <view class="vehicle-select" bind:tap="selectVehicle">
-        <text class="vehicle-text {{vehicleInfo ? '' : 'placeholder'}}">
-          {{vehicleInfo || '选择或添加车辆'}}
-        </text>
+        <view class="vehicle-text-wrap">
+          <text class="vehicle-text {{vehicleInfo ? '' : 'placeholder'}}">{{vehicleInfo || '选择或添加车辆'}}</text>
+        </view>
         <text class="arrow">›</text>
       </view>
     </view>
@@ -112,12 +112,12 @@
     </view>
 
     <view class="form-actions-center safe-area-bottom">
-      <button class="btn-primary btn-publish" bind:tap="submitPublish">🚗 确认发布车源</button>
+      <button class="btn-primary btn-publish" bind:tap="submitPublish">🚗 发布车源信息</button>
     </view>
 
   </block>
 
-  <!-- ====== 寻车模式 ====== -->
+  <!-- ====== 发布寻车模式 ====== -->
   <block wx:elif="{{mode === 'request'}}">
     <view class="request-intro">
       <text class="request-icon">🙋</text>
@@ -131,7 +131,7 @@
         bindinput="onInput" data-field="fromCity" />
       <view class="location-detail" wx:if="{{form.fromCity}}">
         <text class="detail-label">详细地址</text>
-        <input class="form-input" placeholder="乡镇/小区等"
+        <input class="form-input" placeholder="县、区、乡镇等"
           value="{{form.fromDetail}}" bindinput="onInput" data-field="fromDetail" />
       </view>
     </view>
@@ -142,7 +142,7 @@
         bindinput="onInput" data-field="toCity" />
       <view class="location-detail" wx:if="{{form.toCity}}">
         <text class="detail-label">详细地址</text>
-        <input class="form-input" placeholder="乡镇/小区等"
+        <input class="form-input" placeholder="县、区、乡镇等"
           value="{{form.toDetail}}" bindinput="onInput" data-field="toDetail" />
       </view>
     </view>
@@ -184,7 +184,7 @@
         value="{{form.remarks}}" bindinput="onInput" data-field="remarks" />
     </view>
 
-    <view class="form-actions safe-area-bottom">
+    <view class="form-actions-center safe-area-bottom">
       <button class="btn-primary" bind:tap="submitRequest">🔍 发布寻车信息</button>
     </view>
 

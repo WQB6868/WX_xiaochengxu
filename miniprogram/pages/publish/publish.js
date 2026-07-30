@@ -1,4 +1,4 @@
-﻿var api = require("../../utils/api");
+var api = require("../../utils/api");
 var auth = require("../../utils/auth");
 var constants = require("../../utils/constants");
 
@@ -10,7 +10,7 @@ Page({
     form: {
       fromAddress: "", fromProvince: "", fromCity: "", fromDistrict: "", fromLat: 0, fromLng: 0, fromDetail: "",
       toAddress: "", toProvince: "", toCity: "", toDistrict: "", toLat: 0, toLng: 0, toDetail: "",
-      departDate: "", departTime: "", departTimeDetail: "", seats: 2, price: 0, vehicleId: "", tags: [], remarks: "", viaPoints: "", contactPhone: "", requestPhone: "",
+      departDate: "", departTime: "", departTimeDetail: "", seats: 2, price: "", vehicleId: "", tags: [], remarks: "", viaPoints: "", contactPhone: "", requestPhone: "",
       maxPrice: -1, passengers: 1
     },
     vehicleInfo: "",
@@ -25,7 +25,7 @@ Page({
   onLoad: function(options) {
     var mode = (options && options.mode) || "publish";
     this.setData({ mode: mode });
-    wx.setNavigationBarTitle({ title: mode === "request" ? "寻车" : "发布车源" });
+    wx.setNavigationBarTitle({ title: mode === "request" ? "发布寻车" : "发布车源" });
     if (mode === "publish") {
       auth.checkVerified().catch(function() {});
 
@@ -35,7 +35,7 @@ Page({
   switchMode: function(e) {
     var mode = e.currentTarget.dataset.mode;
     this.setData({ mode: mode });
-    wx.setNavigationBarTitle({ title: mode === "request" ? "寻车" : "发布车源" });
+    wx.setNavigationBarTitle({ title: mode === "request" ? "发布寻车" : "发布车源" });
 
     if (mode === "request") {
       this.setData({  });
@@ -170,7 +170,7 @@ Page({
                 },
                 departDate: form.departDate, departTime: form.departTime, departTimeDetail: form.departTimeDetail,
                 viaPoints: form.viaPoints,
-                seats: form.seats, price: parseFloat(form.price) || 0,
+                seats: form.seats, price: form.price === "" ? -1 : parseFloat(form.price),
                 vehicleId: form.vehicleId, tags: form.tags, remarks: form.remarks, contactPhone: form.contactPhone
               }).then(function() {
                 wx.showToast({ title: "发布成功", icon: "success" });
@@ -193,7 +193,7 @@ Page({
                 },
                 departDate: form.departDate, departTime: form.departTime, departTimeDetail: form.departTimeDetail,
                 viaPoints: form.viaPoints,
-                seats: form.seats, price: parseFloat(form.price) || 0,
+                seats: form.seats, price: form.price === "" ? -1 : parseFloat(form.price),
                 vehicleId: form.vehicleId, tags: form.tags, remarks: form.remarks, contactPhone: form.contactPhone
               }).then(function() {
                 wx.showToast({ title: "发布成功", icon: "success" });

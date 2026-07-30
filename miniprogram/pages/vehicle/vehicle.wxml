@@ -1,4 +1,4 @@
-﻿<view class="page-container">
+<view class="page-container">
   <!-- Vehicle List -->
   <view class="vehicle-list" wx:if="{{vehicles.length > 0}}">
     <block wx:for="{{vehicles}}" wx:key="_id">
@@ -40,27 +40,27 @@
   <view class="add-card card">
     <text class="section-title">🚗 添加车辆</text>
     <view class="form-section">
-      <text class="form-label">品牌</text>
+      <text class="form-label" style="padding-left:24rpx">品牌</text>
       <input class="form-input" placeholder="如：大众、丰田" value="{{form.brand}}" bindinput="onFormInput" data-field="brand" />
     </view>
     <view class="form-section">
-      <text class="form-label">型号</text>
+      <text class="form-label" style="padding-left:24rpx">型号</text>
       <input class="form-input" placeholder="如：帕萨特、卡罗拉" value="{{form.model}}" bindinput="onFormInput" data-field="model" />
     </view>
     <view class="form-row">
       <view class="form-section flex-1">
-        <text class="form-label">颜色</text>
+        <text class="form-label" style="padding-left:24rpx">颜色</text>
         <input class="form-input" placeholder="白色" value="{{form.color}}" bindinput="onFormInput" data-field="color" />
       </view>
       <view class="form-section flex-1" style="margin-left:20rpx;">
-        <text class="form-label">座位数</text>
-        <input class="form-input" type="number" placeholder="4" value="{{form.seats}}" bindinput="onFormInput" data-field="seats" />
+        <text class="form-label" style="padding-left:24rpx">座位数</text>
+        <input class="form-input seats-input" type="number" placeholder="5" value="{{form.seats}}" bindinput="onFormInput" data-field="seats" />
       </view>
     </view>
     <view class="form-section">
-      <text class="form-label">车牌号</text>
-      <input class="form-input" placeholder="如：京A88888" value="{{form.plateNumber}}" bindinput="onFormInput" data-field="plateNumber" />
+      <text class="form-label" style="padding-left:24rpx">车牌号</text>
+      <input class="form-input" placeholder="如：京A88888（选填）" value="{{form.plateNumber}}" bindinput="onFormInput" data-field="plateNumber" />
     </view>
-    <button class="btn-primary" bind:tap="addVehicle">保存车辆</button>
+    <view class="btn-center-wrap"><button class="btn-primary btn-save" bind:tap="addVehicle">保存车辆</button></view>
   </view>
 </view>

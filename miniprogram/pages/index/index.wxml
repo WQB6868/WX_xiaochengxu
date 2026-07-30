@@ -1,4 +1,4 @@
-﻿<view class="page-container">
+<view class="page-container">
   <!-- 快捷搜索：出发地 / 目的地 / 日期 -->
   <view class="search-card">
     <view class="search-form">
@@ -181,7 +181,7 @@
     </view>
     <view class="fab fab-secondary" bind:tap="goRequest">
       <text class="fab-icon">🙋</text>
-      <text class="fab-text">寻车</text>
+      <text class="fab-text">发布寻车</text>
     </view>
   </view>
 </view>
